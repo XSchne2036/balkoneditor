@@ -1,8 +1,8 @@
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RotateCcw, Box, Ruler, ArrowUpDown, Columns, Palette, Shield } from 'lucide-react';
-import type { PlatformMaterial, RailingStyle } from './BalconyModel';
+import { RotateCcw, Box, Ruler, ArrowUpDown, Columns, Palette, Shield, Wrench } from 'lucide-react';
+import type { PlatformMaterial, RailingStyle, FrameMaterial } from './BalconyModel';
 
 interface ControlPanelProps {
   width: number;
@@ -12,6 +12,7 @@ interface ControlPanelProps {
   supportCount: 2 | 3 | 4 | 6;
   platformMaterial: PlatformMaterial;
   railingStyle: RailingStyle;
+  frameMaterial: FrameMaterial;
   onWidthChange: (value: number) => void;
   onDepthChange: (value: number) => void;
   onPlatformHeightChange: (value: number) => void;
@@ -19,6 +20,7 @@ interface ControlPanelProps {
   onSupportCountChange: (value: 2 | 3 | 4 | 6) => void;
   onPlatformMaterialChange: (value: PlatformMaterial) => void;
   onRailingStyleChange: (value: RailingStyle) => void;
+  onFrameMaterialChange: (value: FrameMaterial) => void;
   onResetCamera: () => void;
 }
 
@@ -62,9 +64,14 @@ const PLATFORM_MATERIAL_LABELS: Record<PlatformMaterial, string> = {
 };
 
 const RAILING_STYLE_LABELS: Record<RailingStyle, string> = {
-  'glass-single': 'Edelstahl verglast',
+  'glass': 'Edelstahl verglast',
   'glass-double': 'Edelstahl verglast (doppelter Handlauf)',
   'bars': 'Edelstahl mit Rundstäben',
+};
+
+const FRAME_MATERIAL_LABELS: Record<FrameMaterial, string> = {
+  'pu-lackiert': 'Baustahl PU-Lackiert',
+  'feuerverzinkt': 'Baustahl Feuerverzinkt',
 };
 
 export const ControlPanel = ({
@@ -75,6 +82,7 @@ export const ControlPanel = ({
   supportCount,
   platformMaterial,
   railingStyle,
+  frameMaterial,
   onWidthChange,
   onDepthChange,
   onPlatformHeightChange,
@@ -82,6 +90,7 @@ export const ControlPanel = ({
   onSupportCountChange,
   onPlatformMaterialChange,
   onRailingStyleChange,
+  onFrameMaterialChange,
   onResetCamera,
 }: ControlPanelProps) => {
   return (
@@ -209,6 +218,29 @@ export const ControlPanel = ({
               {(Object.keys(RAILING_STYLE_LABELS) as RailingStyle[]).map((key) => (
                 <SelectItem key={key} value={key}>
                   {RAILING_STYLE_LABELS[key]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Frame material selector */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="text-primary"><Wrench className="h-4 w-4" /></span>
+            <span className="control-label !mb-0">Gestell</span>
+          </div>
+          <Select
+            value={frameMaterial}
+            onValueChange={(val) => onFrameMaterialChange(val as FrameMaterial)}
+          >
+            <SelectTrigger className="w-full bg-background">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-background border-border">
+              {(Object.keys(FRAME_MATERIAL_LABELS) as FrameMaterial[]).map((key) => (
+                <SelectItem key={key} value={key}>
+                  {FRAME_MATERIAL_LABELS[key]}
                 </SelectItem>
               ))}
             </SelectContent>
