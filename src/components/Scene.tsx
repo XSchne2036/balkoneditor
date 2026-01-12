@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Grid } from '@react-three/drei';
-import { BalconyModel } from './BalconyModel';
+import { BalconyModel, type MaterialPreset } from './BalconyModel';
 import { Suspense, useRef, useEffect } from 'react';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import * as THREE from 'three';
@@ -10,10 +10,21 @@ interface SceneProps {
   depth: number;
   platformHeight: number;
   railingHeight: number;
+  supportCount: 2 | 3 | 4 | 6;
+  material: MaterialPreset;
   onControlsRef: (ref: OrbitControlsImpl | null) => void;
 }
 
-const SceneContent = ({ width, depth, platformHeight, railingHeight }: Omit<SceneProps, 'onControlsRef'>) => {
+interface SceneContentProps {
+  width: number;
+  depth: number;
+  platformHeight: number;
+  railingHeight: number;
+  supportCount: 2 | 3 | 4 | 6;
+  material: MaterialPreset;
+}
+
+const SceneContent = ({ width, depth, platformHeight, railingHeight, supportCount, material }: SceneContentProps) => {
   return (
     <>
       {/* Lighting */}
@@ -60,12 +71,14 @@ const SceneContent = ({ width, depth, platformHeight, railingHeight }: Omit<Scen
         depth={depth}
         platformHeight={platformHeight}
         railingHeight={railingHeight}
+        supportCount={supportCount}
+        material={material}
       />
     </>
   );
 };
 
-export const Scene = ({ width, depth, platformHeight, railingHeight, onControlsRef }: SceneProps) => {
+export const Scene = ({ width, depth, platformHeight, railingHeight, supportCount, material, onControlsRef }: SceneProps) => {
   const controlsRef = useRef<OrbitControlsImpl>(null);
 
   useEffect(() => {
@@ -95,6 +108,8 @@ export const Scene = ({ width, depth, platformHeight, railingHeight, onControlsR
           depth={depth}
           platformHeight={platformHeight}
           railingHeight={railingHeight}
+          supportCount={supportCount}
+          material={material}
         />
       </Suspense>
 

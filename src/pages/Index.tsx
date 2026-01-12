@@ -2,12 +2,15 @@ import { useState, useCallback, useRef } from 'react';
 import { Scene } from '@/components/Scene';
 import { ControlPanel } from '@/components/ControlPanel';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
+import type { MaterialPreset } from '@/components/BalconyModel';
 
 const Index = () => {
   const [width, setWidth] = useState(3);
   const [depth, setDepth] = useState(1.5);
   const [platformHeight, setPlatformHeight] = useState(2.5);
   const [railingHeight, setRailingHeight] = useState(1.1);
+  const [supportCount, setSupportCount] = useState<2 | 3 | 4 | 6>(2);
+  const [material, setMaterial] = useState<MaterialPreset>('douglasie');
   
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
 
@@ -30,20 +33,22 @@ const Index = () => {
           depth={depth}
           platformHeight={platformHeight}
           railingHeight={railingHeight}
+          supportCount={supportCount}
+          material={material}
           onControlsRef={handleControlsRef}
         />
         
         {/* Canvas overlay info */}
         <div className="absolute bottom-4 left-4 text-xs text-muted-foreground font-mono bg-card/80 backdrop-blur-sm px-3 py-2 rounded-md border border-border">
-          <span className="text-primary">●</span> Drag to rotate • Scroll to zoom • Right-click to pan
+          <span className="text-primary">●</span> Ziehen zum Drehen • Scrollen zum Zoomen • Rechtsklick zum Verschieben
         </div>
 
         {/* Title overlay */}
         <div className="absolute top-4 left-4">
           <h1 className="text-xl lg:text-2xl font-bold text-foreground">
-            Balcony <span className="text-gradient">Configurator</span>
+            Balkon-<span className="text-gradient">Konfigurator</span>
           </h1>
-          <p className="text-xs text-muted-foreground mt-1">Real-time 3D parametric model</p>
+          <p className="text-xs text-muted-foreground mt-1">Echtzeit 3D-Modell</p>
         </div>
       </div>
 
@@ -54,10 +59,14 @@ const Index = () => {
           depth={depth}
           platformHeight={platformHeight}
           railingHeight={railingHeight}
+          supportCount={supportCount}
+          material={material}
           onWidthChange={setWidth}
           onDepthChange={setDepth}
           onPlatformHeightChange={setPlatformHeight}
           onRailingHeightChange={setRailingHeight}
+          onSupportCountChange={setSupportCount}
+          onMaterialChange={setMaterial}
           onResetCamera={handleResetCamera}
         />
       </div>
