@@ -2,7 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import { Scene } from '@/components/Scene';
 import { ControlPanel } from '@/components/ControlPanel';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
-import type { MaterialPreset } from '@/components/BalconyModel';
+import type { PlatformMaterial, RailingStyle } from '@/components/BalconyModel';
 
 const Index = () => {
   const [width, setWidth] = useState(3);
@@ -10,7 +10,8 @@ const Index = () => {
   const [platformHeight, setPlatformHeight] = useState(2.5);
   const [railingHeight, setRailingHeight] = useState(1.1);
   const [supportCount, setSupportCount] = useState<2 | 3 | 4 | 6>(2);
-  const [material, setMaterial] = useState<MaterialPreset>('douglasie');
+  const [platformMaterial, setPlatformMaterial] = useState<PlatformMaterial>('douglasie');
+  const [railingStyle, setRailingStyle] = useState<RailingStyle>('glass-single');
   
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
 
@@ -34,7 +35,8 @@ const Index = () => {
           platformHeight={platformHeight}
           railingHeight={railingHeight}
           supportCount={supportCount}
-          material={material}
+          platformMaterial={platformMaterial}
+          railingStyle={railingStyle}
           onControlsRef={handleControlsRef}
         />
         
@@ -60,13 +62,15 @@ const Index = () => {
           platformHeight={platformHeight}
           railingHeight={railingHeight}
           supportCount={supportCount}
-          material={material}
+          platformMaterial={platformMaterial}
+          railingStyle={railingStyle}
           onWidthChange={setWidth}
           onDepthChange={setDepth}
           onPlatformHeightChange={setPlatformHeight}
           onRailingHeightChange={setRailingHeight}
           onSupportCountChange={setSupportCount}
-          onMaterialChange={setMaterial}
+          onPlatformMaterialChange={setPlatformMaterial}
+          onRailingStyleChange={setRailingStyle}
           onResetCamera={handleResetCamera}
         />
       </div>

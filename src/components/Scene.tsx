@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Grid } from '@react-three/drei';
-import { BalconyModel, type MaterialPreset } from './BalconyModel';
+import { BalconyModel, type PlatformMaterial, type RailingStyle } from './BalconyModel';
 import { Suspense, useRef, useEffect } from 'react';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import * as THREE from 'three';
@@ -11,7 +11,8 @@ interface SceneProps {
   platformHeight: number;
   railingHeight: number;
   supportCount: 2 | 3 | 4 | 6;
-  material: MaterialPreset;
+  platformMaterial: PlatformMaterial;
+  railingStyle: RailingStyle;
   onControlsRef: (ref: OrbitControlsImpl | null) => void;
 }
 
@@ -21,10 +22,11 @@ interface SceneContentProps {
   platformHeight: number;
   railingHeight: number;
   supportCount: 2 | 3 | 4 | 6;
-  material: MaterialPreset;
+  platformMaterial: PlatformMaterial;
+  railingStyle: RailingStyle;
 }
 
-const SceneContent = ({ width, depth, platformHeight, railingHeight, supportCount, material }: SceneContentProps) => {
+const SceneContent = ({ width, depth, platformHeight, railingHeight, supportCount, platformMaterial, railingStyle }: SceneContentProps) => {
   return (
     <>
       {/* Lighting */}
@@ -72,13 +74,14 @@ const SceneContent = ({ width, depth, platformHeight, railingHeight, supportCoun
         platformHeight={platformHeight}
         railingHeight={railingHeight}
         supportCount={supportCount}
-        material={material}
+        platformMaterial={platformMaterial}
+        railingStyle={railingStyle}
       />
     </>
   );
 };
 
-export const Scene = ({ width, depth, platformHeight, railingHeight, supportCount, material, onControlsRef }: SceneProps) => {
+export const Scene = ({ width, depth, platformHeight, railingHeight, supportCount, platformMaterial, railingStyle, onControlsRef }: SceneProps) => {
   const controlsRef = useRef<OrbitControlsImpl>(null);
 
   useEffect(() => {
@@ -109,7 +112,8 @@ export const Scene = ({ width, depth, platformHeight, railingHeight, supportCoun
           platformHeight={platformHeight}
           railingHeight={railingHeight}
           supportCount={supportCount}
-          material={material}
+          platformMaterial={platformMaterial}
+          railingStyle={railingStyle}
         />
       </Suspense>
 

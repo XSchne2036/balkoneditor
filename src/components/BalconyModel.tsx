@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
 
-export type MaterialPreset = 'douglasie' | 'wpc' | 'alu';
+export type PlatformMaterial = 'douglasie' | 'wpc' | 'alu';
+export type RailingStyle = 'glass-single' | 'glass-double' | 'bars';
 
 interface BalconyModelProps {
   width: number;
@@ -9,26 +10,25 @@ interface BalconyModelProps {
   platformHeight: number;
   railingHeight: number;
   supportCount: 2 | 3 | 4 | 6;
-  material: MaterialPreset;
+  platformMaterial: PlatformMaterial;
+  railingStyle: RailingStyle;
 }
 
-const MATERIAL_CONFIGS = {
-  douglasie: {
-    platform: { color: 0xb5651d, roughness: 0.9, metalness: 0.0 },
-    railing: { color: 0xa0522d, roughness: 0.85, metalness: 0.0 },
-    support: { color: 0x8b4513, roughness: 0.9, metalness: 0.0 },
-  },
-  wpc: {
-    platform: { color: 0x5c4033, roughness: 0.7, metalness: 0.1 },
-    railing: { color: 0x4a3728, roughness: 0.6, metalness: 0.15 },
-    support: { color: 0x3d2b1f, roughness: 0.65, metalness: 0.1 },
-  },
-  alu: {
-    platform: { color: 0xd3d3d3, roughness: 0.3, metalness: 0.9 },
-    railing: { color: 0xc0c0c0, roughness: 0.2, metalness: 0.95 },
-    support: { color: 0xa9a9a9, roughness: 0.25, metalness: 0.9 },
-  },
+const PLATFORM_MATERIAL_CONFIGS = {
+  douglasie: { color: 0xb5651d, roughness: 0.9, metalness: 0.0 },
+  wpc: { color: 0x5c4033, roughness: 0.7, metalness: 0.1 },
+  alu: { color: 0xd3d3d3, roughness: 0.3, metalness: 0.9 },
 };
+
+const SUPPORT_MATERIAL_CONFIGS = {
+  douglasie: { color: 0x8b4513, roughness: 0.9, metalness: 0.0 },
+  wpc: { color: 0x3d2b1f, roughness: 0.65, metalness: 0.1 },
+  alu: { color: 0xa9a9a9, roughness: 0.25, metalness: 0.9 },
+};
+
+// Stainless steel for railings
+const STEEL_MATERIAL = { color: 0xc0c0c0, roughness: 0.2, metalness: 0.95 };
+const GLASS_MATERIAL = { color: 0x88ccff, roughness: 0.05, metalness: 0.0, transparent: true, opacity: 0.3 };
 
 export const BalconyModel = ({ 
   width, 
@@ -36,27 +36,38 @@ export const BalconyModel = ({
   platformHeight, 
   railingHeight, 
   supportCount,
-  material 
+  platformMaterial,
+  railingStyle
 }: BalconyModelProps) => {
-  const config = MATERIAL_CONFIGS[material];
+  const platformConfig = PLATFORM_MATERIAL_CONFIGS[platformMaterial];
+  const supportConfig = SUPPORT_MATERIAL_CONFIGS[platformMaterial];
 
-  const platformMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: config.platform.color,
-    roughness: config.platform.roughness,
-    metalness: config.platform.metalness,
-  }), [config.platform]);
+  const platformMat = useMemo(() => new THREE.MeshStandardMaterial({
+    color: platformConfig.color,
+    roughness: platformConfig.roughness,
+    metalness: platformConfig.metalness,
+  }), [platformConfig]);
 
-  const metalMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: config.railing.color,
-    roughness: config.railing.roughness,
-    metalness: config.railing.metalness,
-  }), [config.railing]);
+  const supportMat = useMemo(() => new THREE.MeshStandardMaterial({
+    color: supportConfig.color,
+    roughness: supportConfig.roughness,
+    metalness: supportConfig.metalness,
+  }), [supportConfig]);
 
-  const supportMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: config.support.color,
-    roughness: config.support.roughness,
-    metalness: config.support.metalness,
-  }), [config.support]);
+  const steelMat = useMemo(() => new THREE.MeshStandardMaterial({
+    color: STEEL_MATERIAL.color,
+    roughness: STEEL_MATERIAL.roughness,
+    metalness: STEEL_MATERIAL.metalness,
+  }), []);
+
+  const glassMat = useMemo(() => new THREE.MeshStandardMaterial({
+    color: GLASS_MATERIAL.color,
+    roughness: GLASS_MATERIAL.roughness,
+    metalness: GLASS_MATERIAL.metalness,
+    transparent: GLASS_MATERIAL.transparent,
+    opacity: GLASS_MATERIAL.opacity,
+    side: THREE.DoubleSide,
+  }), []);
 
   const platformThickness = 0.15;
   const railingPostRadius = 0.03;
@@ -64,30 +75,38 @@ export const BalconyModel = ({
   const supportBeamSize = 0.1;
 
   // Calculate support positions based on count
+  // 2-3 supports: only at front
+  // 4-6 supports: distributed front and back
   const supportPositions = useMemo(() => {
-    const positions: number[] = [];
+    const positions: { x: number; z: number }[] = [];
     
     if (supportCount === 2) {
-      positions.push(-width / 2 + supportBeamSize / 2, width / 2 - supportBeamSize / 2);
+      // 2 supports at front corners
+      positions.push({ x: -width / 2 + supportBeamSize / 2, z: depth / 2 - supportBeamSize / 2 });
+      positions.push({ x: width / 2 - supportBeamSize / 2, z: depth / 2 - supportBeamSize / 2 });
     } else if (supportCount === 3) {
-      positions.push(-width / 2 + supportBeamSize / 2, 0, width / 2 - supportBeamSize / 2);
+      // 3 supports at front (corners + middle)
+      positions.push({ x: -width / 2 + supportBeamSize / 2, z: depth / 2 - supportBeamSize / 2 });
+      positions.push({ x: 0, z: depth / 2 - supportBeamSize / 2 });
+      positions.push({ x: width / 2 - supportBeamSize / 2, z: depth / 2 - supportBeamSize / 2 });
     } else if (supportCount === 4) {
-      const spacing = width / 3;
-      positions.push(
-        -width / 2 + supportBeamSize / 2,
-        -width / 2 + spacing,
-        width / 2 - spacing,
-        width / 2 - supportBeamSize / 2
-      );
+      // 4 supports: 2 front, 2 back (corners)
+      positions.push({ x: -width / 2 + supportBeamSize / 2, z: depth / 2 - supportBeamSize / 2 });
+      positions.push({ x: width / 2 - supportBeamSize / 2, z: depth / 2 - supportBeamSize / 2 });
+      positions.push({ x: -width / 2 + supportBeamSize / 2, z: -depth / 2 + supportBeamSize / 2 });
+      positions.push({ x: width / 2 - supportBeamSize / 2, z: -depth / 2 + supportBeamSize / 2 });
     } else if (supportCount === 6) {
-      const spacing = width / 5;
-      for (let i = 0; i < 6; i++) {
-        positions.push(-width / 2 + supportBeamSize / 2 + i * spacing);
-      }
+      // 6 supports: 3 front, 3 back
+      positions.push({ x: -width / 2 + supportBeamSize / 2, z: depth / 2 - supportBeamSize / 2 });
+      positions.push({ x: 0, z: depth / 2 - supportBeamSize / 2 });
+      positions.push({ x: width / 2 - supportBeamSize / 2, z: depth / 2 - supportBeamSize / 2 });
+      positions.push({ x: -width / 2 + supportBeamSize / 2, z: -depth / 2 + supportBeamSize / 2 });
+      positions.push({ x: 0, z: -depth / 2 + supportBeamSize / 2 });
+      positions.push({ x: width / 2 - supportBeamSize / 2, z: -depth / 2 + supportBeamSize / 2 });
     }
     
     return positions;
-  }, [width, supportCount, supportBeamSize]);
+  }, [width, depth, supportCount, supportBeamSize]);
 
   // Calculate railing post positions
   const railingPosts = useMemo(() => {
@@ -112,24 +131,53 @@ export const BalconyModel = ({
     return posts;
   }, [width, depth]);
 
+  // Vertical bar positions for "bars" style
+  const verticalBars = useMemo(() => {
+    if (railingStyle !== 'bars') return [];
+    
+    const bars: { x: number; z: number }[] = [];
+    const barSpacing = 0.12; // 12cm between bars
+
+    // Front bars
+    const frontBarCount = Math.floor(width / barSpacing);
+    for (let i = 1; i < frontBarCount; i++) {
+      const x = -width / 2 + i * barSpacing;
+      bars.push({ x, z: depth / 2 });
+    }
+
+    // Left side bars
+    const sideBarCount = Math.floor(depth / barSpacing);
+    for (let i = 1; i < sideBarCount; i++) {
+      const z = -depth / 2 + i * barSpacing;
+      bars.push({ x: -width / 2, z });
+      bars.push({ x: width / 2, z });
+    }
+
+    return bars;
+  }, [width, depth, railingStyle]);
+
+  const hasGlass = railingStyle === 'glass-single' || railingStyle === 'glass-double';
+  const hasDoubleHandrail = railingStyle === 'glass-double';
+  const hasBars = railingStyle === 'bars';
+
   return (
     <group>
       {/* Platform */}
       <mesh
         position={[0, platformHeight - platformThickness / 2, 0]}
-        material={platformMaterial}
+        material={platformMat}
         castShadow
         receiveShadow
       >
         <boxGeometry args={[width, platformThickness, depth]} />
       </mesh>
 
-      {/* Support beams - dynamic count */}
-      {supportPositions.map((xPos, index) => (
+      {/* Support beams - dynamic count and positioning */}
+      {supportPositions.map((pos, index) => (
         <mesh
           key={`support-${index}`}
-          position={[xPos, platformHeight / 2, -depth / 2 + supportBeamSize / 2]}
-          material={supportMaterial}
+          position={[pos.x, platformHeight / 2, pos.z]}
+          material={supportMat}
           castShadow
         >
           <boxGeometry args={[supportBeamSize, platformHeight, supportBeamSize]} />
@@ -141,70 +189,141 @@ export const BalconyModel = ({
         <mesh
           key={`post-${index}`}
           position={[post.x, platformHeight + railingHeight / 2, post.z]}
-          material={metalMaterial}
+          material={steelMat}
           castShadow
         >
           <cylinderGeometry args={[railingPostRadius, railingPostRadius, railingHeight, 8]} />
         </mesh>
       ))}
 
-      {/* Top railing - front */}
+      {/* Top handrail - front */}
       <mesh
         position={[0, platformHeight + railingHeight, depth / 2]}
         rotation={[0, 0, Math.PI / 2]}
-        material={metalMaterial}
+        material={steelMat}
         castShadow
       >
         <cylinderGeometry args={[railingBarRadius * 1.5, railingBarRadius * 1.5, width, 8]} />
       </mesh>
 
-      {/* Top railing - left side */}
+      {/* Top handrail - left side */}
       <mesh
         position={[-width / 2, platformHeight + railingHeight, 0]}
         rotation={[Math.PI / 2, 0, 0]}
-        material={metalMaterial}
+        material={steelMat}
         castShadow
       >
         <cylinderGeometry args={[railingBarRadius * 1.5, railingBarRadius * 1.5, depth, 8]} />
       </mesh>
 
-      {/* Top railing - right side */}
+      {/* Top handrail - right side */}
       <mesh
         position={[width / 2, platformHeight + railingHeight, 0]}
         rotation={[Math.PI / 2, 0, 0]}
-        material={metalMaterial}
+        material={steelMat}
         castShadow
       >
         <cylinderGeometry args={[railingBarRadius * 1.5, railingBarRadius * 1.5, depth, 8]} />
       </mesh>
 
-      {/* Middle railing bars - front */}
-      <mesh
-        position={[0, platformHeight + railingHeight * 0.5, depth / 2]}
-        rotation={[0, 0, Math.PI / 2]}
-        material={metalMaterial}
-        castShadow
-      >
-        <cylinderGeometry args={[railingBarRadius, railingBarRadius, width, 8]} />
-      </mesh>
+      {/* Double handrail (lower rail) for glass-double style */}
+      {hasDoubleHandrail && (
+        <>
+          <mesh
+            position={[0, platformHeight + railingHeight * 0.7, depth / 2]}
+            rotation={[0, 0, Math.PI / 2]}
+            material={steelMat}
+            castShadow
+          >
+            <cylinderGeometry args={[railingBarRadius * 1.2, railingBarRadius * 1.2, width, 8]} />
+          </mesh>
+          <mesh
+            position={[-width / 2, platformHeight + railingHeight * 0.7, 0]}
+            rotation={[Math.PI / 2, 0, 0]}
+            material={steelMat}
+            castShadow
+          >
+            <cylinderGeometry args={[railingBarRadius * 1.2, railingBarRadius * 1.2, depth, 8]} />
+          </mesh>
+          <mesh
+            position={[width / 2, platformHeight + railingHeight * 0.7, 0]}
+            rotation={[Math.PI / 2, 0, 0]}
+            material={steelMat}
+            castShadow
+          >
+            <cylinderGeometry args={[railingBarRadius * 1.2, railingBarRadius * 1.2, depth, 8]} />
+          </mesh>
+        </>
+      )}
 
-      {/* Middle railing bars - sides */}
-      <mesh
-        position={[-width / 2, platformHeight + railingHeight * 0.5, 0]}
-        rotation={[Math.PI / 2, 0, 0]}
-        material={metalMaterial}
-        castShadow
-      >
-        <cylinderGeometry args={[railingBarRadius, railingBarRadius, depth, 8]} />
-      </mesh>
-      <mesh
-        position={[width / 2, platformHeight + railingHeight * 0.5, 0]}
-        rotation={[Math.PI / 2, 0, 0]}
-        material={metalMaterial}
-        castShadow
-      >
-        <cylinderGeometry args={[railingBarRadius, railingBarRadius, depth, 8]} />
-      </mesh>
+      {/* Glass panels */}
+      {hasGlass && (
+        <>
+          {/* Front glass */}
+          <mesh
+            position={[0, platformHeight + railingHeight * 0.45, depth / 2 - 0.01]}
+            material={glassMat}
+          >
+            <boxGeometry args={[width - 0.1, railingHeight * 0.85, 0.01]} />
+          </mesh>
+          {/* Left glass */}
+          <mesh
+            position={[-width / 2 + 0.01, platformHeight + railingHeight * 0.45, 0]}
+            material={glassMat}
+          >
+            <boxGeometry args={[0.01, railingHeight * 0.85, depth - 0.1]} />
+          </mesh>
+          {/* Right glass */}
+          <mesh
+            position={[width / 2 - 0.01, platformHeight + railingHeight * 0.45, 0]}
+            material={glassMat}
+          >
+            <boxGeometry args={[0.01, railingHeight * 0.85, depth - 0.1]} />
+          </mesh>
+        </>
+      )}
+
+      {/* Vertical bars (Rundstäbe) for bars style */}
+      {hasBars && verticalBars.map((bar, index) => (
+        <mesh
+          key={`bar-${index}`}
+          position={[bar.x, platformHeight + railingHeight * 0.45, bar.z]}
+          material={steelMat}
+          castShadow
+        >
+          <cylinderGeometry args={[railingBarRadius * 0.8, railingBarRadius * 0.8, railingHeight * 0.85, 6]} />
+        </mesh>
+      ))}
+
+      {/* Bottom rail for bars style */}
+      {hasBars && (
+        <>
+          <mesh
+            position={[0, platformHeight + 0.05, depth / 2]}
+            rotation={[0, 0, Math.PI / 2]}
+            material={steelMat}
+            castShadow
+          >
+            <cylinderGeometry args={[railingBarRadius, railingBarRadius, width, 8]} />
+          </mesh>
+          <mesh
+            position={[-width / 2, platformHeight + 0.05, 0]}
+            rotation={[Math.PI / 2, 0, 0]}
+            material={steelMat}
+            castShadow
+          >
+            <cylinderGeometry args={[railingBarRadius, railingBarRadius, depth, 8]} />
+          </mesh>
+          <mesh
+            position={[width / 2, platformHeight + 0.05, 0]}
+            rotation={[Math.PI / 2, 0, 0]}
+            material={steelMat}
+            castShadow
+          >
+            <cylinderGeometry args={[railingBarRadius, railingBarRadius, depth, 8]} />
+          </mesh>
+        </>
+      )}
     </group>
   );
 };
