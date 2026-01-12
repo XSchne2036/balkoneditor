@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Grid } from '@react-three/drei';
-import { BalconyModel, type PlatformMaterial, type RailingStyle } from './BalconyModel';
+import { BalconyModel, type PlatformMaterial, type RailingStyle, type FrameMaterial } from './BalconyModel';
 import { Suspense, useRef, useEffect } from 'react';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import * as THREE from 'three';
@@ -13,6 +13,7 @@ interface SceneProps {
   supportCount: 2 | 3 | 4 | 6;
   platformMaterial: PlatformMaterial;
   railingStyle: RailingStyle;
+  frameMaterial: FrameMaterial;
   onControlsRef: (ref: OrbitControlsImpl | null) => void;
 }
 
@@ -24,9 +25,10 @@ interface SceneContentProps {
   supportCount: 2 | 3 | 4 | 6;
   platformMaterial: PlatformMaterial;
   railingStyle: RailingStyle;
+  frameMaterial: FrameMaterial;
 }
 
-const SceneContent = ({ width, depth, platformHeight, railingHeight, supportCount, platformMaterial, railingStyle }: SceneContentProps) => {
+const SceneContent = ({ width, depth, platformHeight, railingHeight, supportCount, platformMaterial, railingStyle, frameMaterial }: SceneContentProps) => {
   return (
     <>
       {/* Lighting */}
@@ -76,12 +78,13 @@ const SceneContent = ({ width, depth, platformHeight, railingHeight, supportCoun
         supportCount={supportCount}
         platformMaterial={platformMaterial}
         railingStyle={railingStyle}
+        frameMaterial={frameMaterial}
       />
     </>
   );
 };
 
-export const Scene = ({ width, depth, platformHeight, railingHeight, supportCount, platformMaterial, railingStyle, onControlsRef }: SceneProps) => {
+export const Scene = ({ width, depth, platformHeight, railingHeight, supportCount, platformMaterial, railingStyle, frameMaterial, onControlsRef }: SceneProps) => {
   const controlsRef = useRef<OrbitControlsImpl>(null);
 
   useEffect(() => {
@@ -114,6 +117,7 @@ export const Scene = ({ width, depth, platformHeight, railingHeight, supportCoun
           supportCount={supportCount}
           platformMaterial={platformMaterial}
           railingStyle={railingStyle}
+          frameMaterial={frameMaterial}
         />
       </Suspense>
 

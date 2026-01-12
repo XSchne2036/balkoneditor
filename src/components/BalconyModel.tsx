@@ -2,7 +2,8 @@ import { useMemo } from 'react';
 import * as THREE from 'three';
 
 export type PlatformMaterial = 'douglasie' | 'wpc' | 'alu';
-export type RailingStyle = 'glass-single' | 'glass-double' | 'bars';
+export type RailingStyle = 'glass' | 'glass-double' | 'bars';
+export type FrameMaterial = 'pu-lackiert' | 'feuerverzinkt';
 
 interface BalconyModelProps {
   width: number;
@@ -12,6 +13,7 @@ interface BalconyModelProps {
   supportCount: 2 | 3 | 4 | 6;
   platformMaterial: PlatformMaterial;
   railingStyle: RailingStyle;
+  frameMaterial: FrameMaterial;
 }
 
 const PLATFORM_MATERIAL_CONFIGS = {
@@ -20,10 +22,10 @@ const PLATFORM_MATERIAL_CONFIGS = {
   alu: { color: 0xd3d3d3, roughness: 0.3, metalness: 0.9 },
 };
 
-const SUPPORT_MATERIAL_CONFIGS = {
-  douglasie: { color: 0x8b4513, roughness: 0.9, metalness: 0.0 },
-  wpc: { color: 0x3d2b1f, roughness: 0.65, metalness: 0.1 },
-  alu: { color: 0xa9a9a9, roughness: 0.25, metalness: 0.9 },
+// Frame materials: PU-Lackiert (dark painted steel) or Feuerverzinkt (galvanized silver)
+const FRAME_MATERIAL_CONFIGS = {
+  'pu-lackiert': { color: 0x2a2a2a, roughness: 0.4, metalness: 0.8 },
+  'feuerverzinkt': { color: 0x9ca3af, roughness: 0.35, metalness: 0.9 },
 };
 
 // Stainless steel for railings
@@ -37,10 +39,11 @@ export const BalconyModel = ({
   railingHeight, 
   supportCount,
   platformMaterial,
-  railingStyle
+  railingStyle,
+  frameMaterial
 }: BalconyModelProps) => {
   const platformConfig = PLATFORM_MATERIAL_CONFIGS[platformMaterial];
-  const supportConfig = SUPPORT_MATERIAL_CONFIGS[platformMaterial];
+  const frameConfig = FRAME_MATERIAL_CONFIGS[frameMaterial];
 
   const platformMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: platformConfig.color,
@@ -48,11 +51,11 @@ export const BalconyModel = ({
     metalness: platformConfig.metalness,
   }), [platformConfig]);
 
-  const supportMat = useMemo(() => new THREE.MeshStandardMaterial({
-    color: supportConfig.color,
-    roughness: supportConfig.roughness,
-    metalness: supportConfig.metalness,
-  }), [supportConfig]);
+  const frameMat = useMemo(() => new THREE.MeshStandardMaterial({
+    color: frameConfig.color,
+    roughness: frameConfig.roughness,
+    metalness: frameConfig.metalness,
+  }), [frameConfig]);
 
   const steelMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: STEEL_MATERIAL.color,
@@ -156,7 +159,7 @@ export const BalconyModel = ({
     return bars;
   }, [width, depth, railingStyle]);
 
-  const hasGlass = railingStyle === 'glass-single' || railingStyle === 'glass-double';
+  const hasGlass = railingStyle === 'glass' || railingStyle === 'glass-double';
   const hasDoubleHandrail = railingStyle === 'glass-double';
   const hasBars = railingStyle === 'bars';
 
@@ -177,7 +180,7 @@ export const BalconyModel = ({
         <mesh
           key={`support-${index}`}
           position={[pos.x, platformHeight / 2, pos.z]}
-          material={supportMat}
+          material={frameMat}
           castShadow
         >
           <boxGeometry args={[supportBeamSize, platformHeight, supportBeamSize]} />
