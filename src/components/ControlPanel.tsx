@@ -1,8 +1,8 @@
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RotateCcw, Box, Ruler, ArrowUpDown, Columns, Palette } from 'lucide-react';
-import type { MaterialPreset } from './BalconyModel';
+import { RotateCcw, Box, Ruler, ArrowUpDown, Columns, Palette, Shield } from 'lucide-react';
+import type { PlatformMaterial, RailingStyle } from './BalconyModel';
 
 interface ControlPanelProps {
   width: number;
@@ -10,13 +10,15 @@ interface ControlPanelProps {
   platformHeight: number;
   railingHeight: number;
   supportCount: 2 | 3 | 4 | 6;
-  material: MaterialPreset;
+  platformMaterial: PlatformMaterial;
+  railingStyle: RailingStyle;
   onWidthChange: (value: number) => void;
   onDepthChange: (value: number) => void;
   onPlatformHeightChange: (value: number) => void;
   onRailingHeightChange: (value: number) => void;
   onSupportCountChange: (value: 2 | 3 | 4 | 6) => void;
-  onMaterialChange: (value: MaterialPreset) => void;
+  onPlatformMaterialChange: (value: PlatformMaterial) => void;
+  onRailingStyleChange: (value: RailingStyle) => void;
   onResetCamera: () => void;
 }
 
@@ -53,10 +55,16 @@ const ParameterControl = ({ label, value, min, max, step, unit, icon, onChange }
   </div>
 );
 
-const MATERIAL_LABELS: Record<MaterialPreset, string> = {
+const PLATFORM_MATERIAL_LABELS: Record<PlatformMaterial, string> = {
   douglasie: 'Douglasie (Holz)',
   wpc: 'WPC-Dielen',
-  alu: 'Aluminium',
+  alu: 'Aluschienen',
+};
+
+const RAILING_STYLE_LABELS: Record<RailingStyle, string> = {
+  'glass-single': 'Edelstahl verglast',
+  'glass-double': 'Edelstahl verglast (doppelter Handlauf)',
+  'bars': 'Edelstahl mit Rundstäben',
 };
 
 export const ControlPanel = ({
@@ -65,13 +73,15 @@ export const ControlPanel = ({
   platformHeight,
   railingHeight,
   supportCount,
-  material,
+  platformMaterial,
+  railingStyle,
   onWidthChange,
   onDepthChange,
   onPlatformHeightChange,
   onRailingHeightChange,
   onSupportCountChange,
-  onMaterialChange,
+  onPlatformMaterialChange,
+  onRailingStyleChange,
   onResetCamera,
 }: ControlPanelProps) => {
   return (
@@ -151,31 +161,54 @@ export const ControlPanel = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-background border-border">
-              <SelectItem value="2">2 Stützen</SelectItem>
-              <SelectItem value="3">3 Stützen</SelectItem>
-              <SelectItem value="4">4 Stützen</SelectItem>
-              <SelectItem value="6">6 Stützen</SelectItem>
+              <SelectItem value="2">2 Stützen (nur vorne)</SelectItem>
+              <SelectItem value="3">3 Stützen (nur vorne)</SelectItem>
+              <SelectItem value="4">4 Stützen (vorne + hinten)</SelectItem>
+              <SelectItem value="6">6 Stützen (vorne + hinten)</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        {/* Material selector */}
+        {/* Platform material selector */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <span className="text-primary"><Palette className="h-4 w-4" /></span>
-            <span className="control-label !mb-0">Material</span>
+            <span className="control-label !mb-0">Bodenbelag</span>
           </div>
           <Select
-            value={material}
-            onValueChange={(val) => onMaterialChange(val as MaterialPreset)}
+            value={platformMaterial}
+            onValueChange={(val) => onPlatformMaterialChange(val as PlatformMaterial)}
           >
             <SelectTrigger className="w-full bg-background">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-background border-border">
-              {(Object.keys(MATERIAL_LABELS) as MaterialPreset[]).map((key) => (
+              {(Object.keys(PLATFORM_MATERIAL_LABELS) as PlatformMaterial[]).map((key) => (
                 <SelectItem key={key} value={key}>
-                  {MATERIAL_LABELS[key]}
+                  {PLATFORM_MATERIAL_LABELS[key]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Railing style selector */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="text-primary"><Shield className="h-4 w-4" /></span>
+            <span className="control-label !mb-0">Geländerart</span>
+          </div>
+          <Select
+            value={railingStyle}
+            onValueChange={(val) => onRailingStyleChange(val as RailingStyle)}
+          >
+            <SelectTrigger className="w-full bg-background">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-background border-border">
+              {(Object.keys(RAILING_STYLE_LABELS) as RailingStyle[]).map((key) => (
+                <SelectItem key={key} value={key}>
+                  {RAILING_STYLE_LABELS[key]}
                 </SelectItem>
               ))}
             </SelectContent>
