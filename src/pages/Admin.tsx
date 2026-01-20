@@ -11,8 +11,8 @@ import { ArrowLeft, Plus, Settings, Eye, Save, Building2, Layers } from 'lucide-
 import type { Manufacturer, Preset } from '@/types/manufacturer';
 import type { PlatformMaterial, RailingStyle, FrameMaterial } from '@/components/BalconyModel';
 
-// Einfacher Admin-Schutz (Stub - später durch echte Auth ersetzen)
-const ADMIN_PASSWORD = 'admin123';
+// Admin-Schutz über Umgebungsvariable (für echte Sicherheit: Backend-Auth implementieren)
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || '';
 
 const PLATFORM_MATERIALS: PlatformMaterial[] = ['douglasie', 'wpc', 'alu'];
 const RAILING_STYLES: RailingStyle[] = ['glass', 'glass-double', 'bars'];
