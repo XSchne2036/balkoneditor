@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RotateCcw, Box, Ruler, ArrowUpDown, Columns, Palette, Shield, Wrench } from 'lucide-react';
 import type { PlatformMaterial, RailingStyle, FrameMaterial } from './BalconyModel';
+import type { Preset } from '@/types/manufacturer';
 
 interface ControlPanelProps {
   width: number;
@@ -22,6 +23,7 @@ interface ControlPanelProps {
   onRailingStyleChange: (value: RailingStyle) => void;
   onFrameMaterialChange: (value: FrameMaterial) => void;
   onResetCamera: () => void;
+  preset?: Preset; // Optional: Filtert Optionen basierend auf Preset
 }
 
 interface ParameterControlProps {
@@ -92,7 +94,39 @@ export const ControlPanel = ({
   onRailingStyleChange,
   onFrameMaterialChange,
   onResetCamera,
+  preset,
 }: ControlPanelProps) => {
+  // Helper: Filtere Optionen basierend auf Preset
+  const filterByPreset = <T extends string | number>(
+    allOptions: T[],
+    allowedOptions?: T[]
+  ): T[] => {
+    if (!allowedOptions || allowedOptions.length === 0) return allOptions;
+    return allOptions.filter((opt) => allowedOptions.includes(opt));
+  };
+
+  // Limits aus Preset oder Defaults
+  const limits = preset?.limits ?? {
+    width: { min: 1, max: 6 },
+    depth: { min: 0.8, max: 3 },
+    platformHeight: { min: 0.5, max: 4 },
+    railingHeight: { min: 0.8, max: 1.5 },
+  };
+
+  // Gefilterte Optionen
+  const availableSupportCounts = filterByPreset([2, 3, 4, 6] as const, preset?.allowedSupportCounts);
+  const availablePlatformMaterials = filterByPreset(
+    ['douglasie', 'wpc', 'alu'] as PlatformMaterial[],
+    preset?.allowedPlatformMaterials
+  );
+  const availableRailingStyles = filterByPreset(
+    ['glass', 'glass-double', 'bars'] as RailingStyle[],
+    preset?.allowedRailingStyles
+  );
+  const availableFrameMaterials = filterByPreset(
+    ['pu-lackiert', 'feuerverzinkt'] as FrameMaterial[],
+    preset?.allowedFrameMaterials
+  );
   return (
     <div className="control-panel space-y-6 animate-fade-in">
       <div className="flex items-center justify-between border-b border-border pb-4">
@@ -115,8 +149,8 @@ export const ControlPanel = ({
         <ParameterControl
           label="Plattformbreite"
           value={width}
-          min={1}
-          max={6}
+          min={limits.width.min}
+          max={limits.width.max}
           step={0.1}
           unit="m"
           icon={<Ruler className="h-4 w-4" />}
@@ -126,8 +160,8 @@ export const ControlPanel = ({
         <ParameterControl
           label="Plattformtiefe"
           value={depth}
-          min={0.8}
-          max={3}
+          min={limits.depth.min}
+          max={limits.depth.max}
           step={0.1}
           unit="m"
           icon={<Box className="h-4 w-4" />}
@@ -137,8 +171,8 @@ export const ControlPanel = ({
         <ParameterControl
           label="Plattformhöhe"
           value={platformHeight}
-          min={0.5}
-          max={4}
+          min={limits.platformHeight.min}
+          max={limits.platformHeight.max}
           step={0.1}
           unit="m"
           icon={<ArrowUpDown className="h-4 w-4" />}
@@ -148,8 +182,8 @@ export const ControlPanel = ({
         <ParameterControl
           label="Geländerhöhe"
           value={railingHeight}
-          min={0.8}
-          max={1.5}
+          min={limits.railingHeight.min}
+          max={limits.railingHeight.max}
           step={0.05}
           unit="m"
           icon={<ArrowUpDown className="h-4 w-4" />}
@@ -170,10 +204,18 @@ export const ControlPanel = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-background border-border">
-              <SelectItem value="2">2 Stützen (nur vorne)</SelectItem>
-              <SelectItem value="3">3 Stützen (nur vorne)</SelectItem>
-              <SelectItem value="4">4 Stützen (vorne + hinten)</SelectItem>
-              <SelectItem value="6">6 Stützen (vorne + hinten)</SelectItem>
+              {availableSupportCounts.includes(2) && (
+                <SelectItem value="2">2 Stützen (nur vorne)</SelectItem>
+              )}
+              {availableSupportCounts.includes(3) && (
+                <SelectItem value="3">3 Stützen (nur vorne)</SelectItem>
+              )}
+              {availableSupportCounts.includes(4) && (
+                <SelectItem value="4">4 Stützen (vorne + hinten)</SelectItem>
+              )}
+              {availableSupportCounts.includes(6) && (
+                <SelectItem value="6">6 Stützen (vorne + hinten)</SelectItem>
+              )}
             </SelectContent>
           </Select>
         </div>
@@ -192,7 +234,7 @@ export const ControlPanel = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-background border-border">
-              {(Object.keys(PLATFORM_MATERIAL_LABELS) as PlatformMaterial[]).map((key) => (
+              {availablePlatformMaterials.map((key) => (
                 <SelectItem key={key} value={key}>
                   {PLATFORM_MATERIAL_LABELS[key]}
                 </SelectItem>
@@ -215,7 +257,7 @@ export const ControlPanel = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-background border-border">
-              {(Object.keys(RAILING_STYLE_LABELS) as RailingStyle[]).map((key) => (
+              {availableRailingStyles.map((key) => (
                 <SelectItem key={key} value={key}>
                   {RAILING_STYLE_LABELS[key]}
                 </SelectItem>
@@ -238,7 +280,7 @@ export const ControlPanel = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-background border-border">
-              {(Object.keys(FRAME_MATERIAL_LABELS) as FrameMaterial[]).map((key) => (
+              {availableFrameMaterials.map((key) => (
                 <SelectItem key={key} value={key}>
                   {FRAME_MATERIAL_LABELS[key]}
                 </SelectItem>
