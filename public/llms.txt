@@ -1,0 +1,11 @@
+# balkoneditor
+
+> Interaktiver 3D-Balkon-Konfigurator für Balkonbauer im DACH-Raum. Nutzer passen Maße, Bodenbelag, Geländer und Gestell in Echtzeit an und visualisieren das Ergebnis als WebGL-Modell.
+
+## Pages
+
+- [Startseite](/): Freier 3D-Konfigurator und Übersicht aller Balkonbauer-Produktlinien.
+- [BalkonPro Standard-Linie](/c/balkonpro/balkonpro-standard): Klassischer Balkon mit Holzboden.
+- [BalkonPro Premium-Linie](/c/balkonpro/balkonpro-premium): Hochwertige Ausführung mit Glasgeländer.
+- [Terrassenbau Eco-Linie](/c/terrassenbau/terrassenbau-eco): Preiswerte, funktionale Ausführung.
+- [Terrassenbau Glas-Linie](/c/terrassenbau/terrassenbau-glas): Moderne Ausführung mit Glasgeländer.
