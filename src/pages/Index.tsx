@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Scene } from '@/components/Scene';
 import { ControlPanel } from '@/components/ControlPanel';
 import { getAllManufacturers, getPresetsForManufacturer } from '@/data/manufacturers';
@@ -35,6 +36,14 @@ const Index = () => {
 
   return (
     <div className="flex flex-col lg:flex-row h-screen w-screen overflow-hidden bg-background">
+      <Helmet>
+        <title>balkoneditor — 3D-Balkon-Konfigurator in Echtzeit</title>
+        <meta name="description" content="Interaktiver 3D-Balkon-Konfigurator: Maße, Bodenbelag, Geländer und Gestell in Echtzeit anpassen und visualisieren." />
+        <link rel="canonical" href="https://balkoneditor.lovable.app/" />
+        <meta property="og:title" content="balkoneditor — 3D-Balkon-Konfigurator in Echtzeit" />
+        <meta property="og:description" content="Interaktiver 3D-Balkon-Konfigurator für Balkonbauer im DACH-Raum." />
+        <meta property="og:url" content="https://balkoneditor.lovable.app/" />
+      </Helmet>
       {/* 3D Canvas */}
       <div className="flex-1 relative min-h-[50vh] lg:min-h-0">
         <Scene
