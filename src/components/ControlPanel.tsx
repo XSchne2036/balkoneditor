@@ -55,6 +55,7 @@ const ParameterControl = ({ label, value, min, max, step, unit, icon, onChange }
       step={step}
       onValueChange={([val]) => onChange(val)}
       className="w-full"
+      aria-label={`${label} in ${unit}`}
     />
   </div>
 );

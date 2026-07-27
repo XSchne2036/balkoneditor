@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Scene } from '@/components/Scene';
 import { ControlPanel } from '@/components/ControlPanel';
 import { getManufacturer, getPreset } from '@/data/manufacturers';
@@ -107,8 +108,37 @@ const ConfiguratorPage = () => {
     );
   }
 
+  const pageUrl = `https://balkoneditor.lovable.app/c/${manufacturerSlug}/${presetId}`;
+  const pageTitle = `${activePreset.name} — ${manufacturerName} | balkoneditor`;
+  const pageDesc = `${activePreset.description ?? activePreset.name} von ${manufacturerName} als interaktives 3D-Modell konfigurieren.`;
+
   return (
     <div className="flex flex-col lg:flex-row h-screen w-screen overflow-hidden bg-background">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDesc} />
+        <link rel="canonical" href={pageUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDesc} />
+        <meta property="og:url" content={pageUrl} />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: activePreset.name,
+          description: activePreset.description,
+          manufacturer: { "@type": "Organization", name: manufacturerName },
+          url: pageUrl,
+        })}</script>
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Start", item: "https://balkoneditor.lovable.app/" },
+            { "@type": "ListItem", position: 2, name: manufacturerName, item: `https://balkoneditor.lovable.app/c/${manufacturerSlug}` },
+            { "@type": "ListItem", position: 3, name: activePreset.name, item: pageUrl },
+          ],
+        })}</script>
+      </Helmet>
       {/* 3D Canvas */}
       <div className="flex-1 relative min-h-[50vh] lg:min-h-0">
         <Scene
