@@ -62,7 +62,7 @@ export const WPC_OBERFLAECHEN: { id: WpcOberflaeche; label: string }[] = [
 export const WPC_FARBEN: { id: WpcFarbe; label: string; color: string }[] = [
   { id: 'anthrazit', label: 'Anthrazit (Graubraun)', color: '#5c554e' },
   { id: 'grau', label: 'Grau', color: '#8a8b86' },
-  { id: 'braun', label: 'Braun', color: '#7a5а3c'.replace('а', 'a') },
+  { id: 'braun', label: 'Braun', color: '#7a5a3c' },
   { id: 'schoko', label: 'Schokoladenbraun', color: '#4b3428' },
 ];
 
