@@ -52,6 +52,13 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         canvas: "hsl(var(--canvas-bg))",
+        brand: {
+          petrol: "hsl(var(--brand-petrol))",
+          "petrol-2": "hsl(var(--brand-petrol-2))",
+          yellow: "hsl(var(--brand-yellow))",
+          "yellow-2": "hsl(var(--brand-yellow-2))",
+        },
+        surface: "hsl(var(--surface))",
         "value-text": "hsl(var(--value-text))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
