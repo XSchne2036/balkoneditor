@@ -151,8 +151,8 @@ const Model = () => {
   return (
     <group position={[0, 0, 0]}>
       {/* Wand-Hintergrund */}
-      <mesh position={[0, 4, -d.tiefe / 2 - 0.1]} receiveShadow>
-        <planeGeometry args={[Math.max(12, d.breite * 2.6), 12]} />
+      <mesh position={[0, 3.2, -d.tiefe / 2 - 0.15]} receiveShadow>
+        <planeGeometry args={[Math.max(8, d.breite * 1.9), Math.max(7, d.podesthoehe + 4)]} />
         <meshStandardMaterial color={wand.color} roughness={0.95} />
       </mesh>
 
