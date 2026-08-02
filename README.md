@@ -71,3 +71,40 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+
+## NOVO DACH Balkon-Konfigurator
+
+Der Konfigurator liegt auf der Route `/` (`src/pages/Novodach.tsx`).
+Der frühere Konfigurator ist weiterhin unter `/classic` erreichbar.
+
+### Run
+
+```bash
+npm install
+npm run dev   # http://localhost:8080
+```
+
+### Deploy
+
+```bash
+npm run build   # Ausgabe in dist/ – als statische SPA deploybar (Vercel, Netlify, …)
+```
+
+### Embed the configurator
+
+```html
+<iframe
+  src="https://balkoneditor.lovable.app/"
+  title="NOVO DACH Balkon-Konfigurator"
+  style="width:100%;height:900px;border:0"
+  loading="lazy"
+  allow="fullscreen"
+></iframe>
+```
+
+### Struktur
+
+- `src/store/novodach.ts` – zustand-Store mit localStorage-Persistenz (`novodach-config-v1`)
+- `src/lib/novodach-data.ts` – Produktdaten (Beläge, RAL, Geländer, Extras)
+- `src/lib/novodach-price.ts` – Preislogik (netto → brutto inkl. 19 % MwSt.)
+- `src/components/novodach/` – Logo, Loader, 3D-Bühne, Wizard, Bestellübersicht
