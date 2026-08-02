@@ -19,7 +19,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<Novodach />} />
+          <Route path="/classic" element={<Index />} />
+
           <Route path="/c/:manufacturer/:preset" element={<ConfiguratorPage />} />
           <Route path="/admin" element={<AdminPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
