@@ -1,9 +1,12 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, ContactShadows, Environment } from '@react-three/drei';
-import { Suspense, useMemo } from 'react';
+import { EffectComposer, Bloom, DepthOfField, Vignette } from '@react-three/postprocessing';
+import { Suspense, useMemo, useEffect } from 'react';
 import * as THREE from 'three';
 import { useConfigurator } from '@/store/novodach';
 import { GELAENDER, RAL_FARBEN, WANDSTRUKTUREN, WPC_FARBEN, BELAG_TYPEN } from '@/lib/novodach-data';
+import { makeDeckTexture } from '@/lib/deck-texture';
+import { Staircase } from '@/components/three/Staircase';
 
 const steelColor = (oberflaeche: string) => {
   if (oberflaeche === 'feuerverzinkt') return '#b9c0c4';
@@ -66,16 +69,20 @@ const Railing = ({
             ))}
             {/* Füllung */}
             {art === 'glas' && (
-              <mesh position={[0, h / 2, 0]}>
-                <boxGeometry args={[s.len - 0.08, h - 0.12, 0.008]} />
+              <mesh position={[0, h / 2, 0]} castShadow>
+                <boxGeometry args={[s.len - 0.08, h - 0.12, 0.012]} />
                 <meshPhysicalMaterial
-                  color={id === '005' ? '#dfe8ea' : '#cfe4ea'}
+                  color={id === '005' ? '#e6eef0' : '#dbeaf0'}
                   transparent
-                  opacity={id === '005' ? 0.55 : 0.32}
-                  roughness={id === '005' ? 0.6 : 0.05}
+                  opacity={id === '005' ? 0.7 : 0.55}
+                  roughness={id === '005' ? 0.35 : 0.05}
                   metalness={0}
-                  transmission={id === '005' ? 0.4 : 0.85}
-                  thickness={0.01}
+                  transmission={0.9}
+                  ior={1.45}
+                  thickness={0.012}
+                  clearcoat={1}
+                  clearcoatRoughness={0.05}
+                  envMapIntensity={1.2}
                 />
               </mesh>
             )}
@@ -118,13 +125,13 @@ const Deck = ({
   depth,
   y,
   steel,
-  floor,
+  floorTexture,
 }: {
   width: number;
   depth: number;
   y: number;
   steel: string;
-  floor: string;
+  floorTexture: THREE.Texture;
 }) => (
   <group position={[0, y, 0]}>
     <mesh castShadow receiveShadow position={[0, -0.09, 0]}>
@@ -133,7 +140,7 @@ const Deck = ({
     </mesh>
     <mesh receiveShadow position={[0, 0.011, 0]} rotation={[-Math.PI / 2, 0, 0]}>
       <planeGeometry args={[width - 0.04, depth - 0.04]} />
-      <meshStandardMaterial color={floor} roughness={0.75} metalness={0.05} />
+      <meshStandardMaterial map={floorTexture} roughness={0.75} metalness={0.05} />
     </mesh>
   </group>
 );
@@ -148,6 +155,14 @@ const Model = () => {
   const h = d.podesthoehe;
   const etage2 = h + 2.7;
 
+  // Nahtlos kachelnde Belagstextur (RepeatWrapping), Kachelung folgt den Maßen
+  const floorTexture = useMemo(() => {
+    const tex = makeDeckTexture(floor, Math.max(1, Math.round(d.breite)), Math.max(1, Math.round(d.tiefe)));
+    return tex;
+  }, [floor, d.breite, d.tiefe]);
+
+  useEffect(() => () => floorTexture.dispose(), [floorTexture]);
+
   return (
     <group position={[0, 0, 0]}>
       {/* Wand-Hintergrund */}
@@ -156,12 +171,12 @@ const Model = () => {
         <meshStandardMaterial color={wand.color} roughness={0.95} />
       </mesh>
 
-      <Deck width={d.breite} depth={d.tiefe} y={h} steel={steel} floor={floor} />
+      <Deck width={d.breite} depth={d.tiefe} y={h} steel={steel} floorTexture={floorTexture} />
       <Railing width={d.breite} depth={d.tiefe} y={h} color={floor} frameColor={frame} art={gel.art} id={gel.id} />
 
       {d.etagen === 2 && (
         <>
-          <Deck width={d.breite} depth={d.tiefe} y={etage2} steel={steel} floor={floor} />
+          <Deck width={d.breite} depth={d.tiefe} y={etage2} steel={steel} floorTexture={floorTexture} />
           <Railing
             width={d.breite}
             depth={d.tiefe}
@@ -207,28 +222,29 @@ const Model = () => {
           ))}
 
       {/* Treppe */}
-      {d.treppe === 'erweitert' &&
-        Array.from({ length: 4 }).map((_, i) => {
-          const stepH = h / 5;
-          return (
-            <mesh
-              key={i}
-              castShadow
-              receiveShadow
-              position={[
-                d.breite / 2 + 0.6,
-                stepH * (i + 1) - stepH / 2,
-                d.tiefe / 2 - 0.4 - i * 0.34,
-              ]}
-            >
-              <boxGeometry args={[d.tiefe * 0.6, stepH, 0.32]} />
-              <meshStandardMaterial color={floor} roughness={0.8} />
-            </mesh>
-          );
-        })}
+      {d.treppe === 'erweitert' && (
+        <Staircase
+          platformHeight={h}
+          width={1.1}
+          stepColor={floor}
+          steelColor={steel}
+          position={[d.breite / 2 + 0.75, 0, d.tiefe / 2 - 0.2]}
+          rotation={[0, Math.PI / 2, 0]}
+        />
+      )}
     </group>
   );
 };
+
+const Effects = () => (
+  <EffectComposer multisampling={4}>
+    {/* Bloom auf Lichtspots / Highlights */}
+    <Bloom intensity={0.55} luminanceThreshold={0.75} luminanceSmoothing={0.25} mipmapBlur />
+    {/* Sanftes Depth-of-Field um den Balkon */}
+    <DepthOfField focusDistance={0.014} focalLength={0.05} bokehScale={2.4} height={720} />
+    <Vignette eskil={false} offset={0.18} darkness={0.55} />
+  </EffectComposer>
+);
 
 export const Stage3D = () => {
   const anim = useConfigurator((s) => s.data.montageAnimation);
@@ -240,18 +256,41 @@ export const Stage3D = () => {
   return (
     <div className="h-full w-full" role="region" aria-label="3D-Vorschau des Balkons">
       <Canvas
-        shadows
+        shadows={{ type: THREE.PCFSoftShadowMap }}
         dpr={[1, 2]}
         camera={{ position: [7, 4.5, 8], fov: 45 }}
-        gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}
+        gl={{
+          antialias: true,
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.05,
+          powerPreference: 'high-performance',
+        }}
       >
         <color attach="background" args={['#EEF2F1']} />
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[8, 12, 6]} intensity={1.4} castShadow shadow-mapSize={[2048, 2048]} />
+        <ambientLight intensity={0.35} />
+        <directionalLight
+          position={[8, 12, 6]}
+          intensity={1.6}
+          castShadow
+          shadow-mapSize={[4096, 4096]}
+          shadow-bias={-0.0004}
+          shadow-normalBias={0.02}
+          shadow-camera-near={0.5}
+          shadow-camera-far={50}
+          shadow-camera-left={-15}
+          shadow-camera-right={15}
+          shadow-camera-top={15}
+          shadow-camera-bottom={-15}
+        />
+        {/* Lichtspots für Bloom-Akzente */}
+        <spotLight position={[-6, 8, 5]} angle={0.5} penumbra={0.8} intensity={40} distance={30} castShadow />
+        <spotLight position={[5, 6, -6]} angle={0.6} penumbra={0.9} intensity={18} distance={30} color="#ffe9c4" />
         <Suspense fallback={null}>
           <Model />
-          <Environment preset="city" />
-          <ContactShadows position={[0, 0, 0]} opacity={0.4} scale={20} blur={2.4} far={12} />
+          {/* 4K HDR Environment */}
+          <Environment preset="city" resolution={4096} background={false} />
+          <ContactShadows position={[0, 0, 0]} opacity={0.45} scale={22} blur={2.6} far={14} resolution={1024} />
+          <Effects />
         </Suspense>
         <OrbitControls
           enableDamping
