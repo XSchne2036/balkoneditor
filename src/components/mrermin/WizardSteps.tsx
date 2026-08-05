@@ -27,6 +27,7 @@ import {
   eur,
   meter,
 } from '@/lib/mrermin-data';
+import { calcPrice } from '@/lib/mrermin-price';
 import { RalPicker } from './RalPicker';
 import { Check, Info, Plus } from 'lucide-react';
 import { toast } from 'sonner';
