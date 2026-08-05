@@ -1,6 +1,6 @@
-# balkoneditor
+# Mr. Ermin
 
-> Interaktiver 3D-Balkon-Konfigurator für Balkonbauer im DACH-Raum. Nutzer passen Maße, Bodenbelag, Geländer und Gestell in Echtzeit an und visualisieren das Ergebnis als WebGL-Modell.
+> Mr. Ermin: interaktiver 3D-Balkon-Konfigurator für den DACH-Raum. Nutzer passen Maße, Bodenbelag, Geländer und Gestell in Echtzeit an und visualisieren das Ergebnis als WebGL-Modell.
 
 ## Pages
 
