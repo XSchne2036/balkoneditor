@@ -26,6 +26,7 @@ const Railing = ({
   frameColor,
   art,
   id,
+  stairPosition,
 }: {
   width: number;
   depth: number;
@@ -34,16 +35,33 @@ const Railing = ({
   frameColor: string;
   art: 'stahl' | 'glas' | 'alublech';
   id: string;
+  stairPosition?: 'vorn-links' | 'vorn-rechts' | 'seitlich-links' | 'seitlich-rechts';
 }) => {
   const h = 1.1;
-  const sides = useMemo(
-    () => [
-      { pos: [0, 0, depth / 2] as const, len: width, rot: 0 },
-      { pos: [-width / 2, 0, 0] as const, len: depth, rot: Math.PI / 2 },
-      { pos: [width / 2, 0, 0] as const, len: depth, rot: Math.PI / 2 },
-    ],
-    [width, depth]
-  );
+  const sides = useMemo(() => {
+    const opening = Math.min(1.1, width - 0.3, depth - 0.3);
+    const segments: { pos: readonly [number, number, number]; len: number; rot: number }[] = [];
+    const addFront = (from: number, to: number) => {
+      if (to - from > 0.1) segments.push({ pos: [(from + to) / 2, 0, depth / 2], len: to - from, rot: 0 });
+    };
+    const addSide = (x: number, from: number, to: number) => {
+      if (to - from > 0.1) {
+        // Lokale X-Achse zeigt bei +90° in Richtung -Z.
+        segments.push({ pos: [x, 0, -(from + to) / 2], len: to - from, rot: Math.PI / 2 });
+      }
+    };
+
+    if (stairPosition === 'vorn-links') addFront(-width / 2 + opening, width / 2);
+    else if (stairPosition === 'vorn-rechts') addFront(-width / 2, width / 2 - opening);
+    else addFront(-width / 2, width / 2);
+
+    if (stairPosition === 'seitlich-links') addSide(-width / 2, -depth / 2 + opening, depth / 2);
+    else addSide(-width / 2, -depth / 2, depth / 2);
+
+    if (stairPosition === 'seitlich-rechts') addSide(width / 2, -depth / 2 + opening, depth / 2);
+    else addSide(width / 2, -depth / 2, depth / 2);
+    return segments;
+  }, [width, depth, stairPosition]);
 
   return (
     <group position={[0, y, 0]}>
@@ -154,6 +172,33 @@ const Model = () => {
   const wand = WANDSTRUKTUREN.find((w) => w.id === d.wand)!;
   const h = d.podesthoehe;
   const etage2 = h + 2.7;
+  const stairPosition = d.treppenPosition ?? 'vorn-rechts';
+  const stairWidth = 1.1;
+  const landingDepth = 0.9;
+
+  const stairLayout = useMemo(() => {
+    const frontX = stairPosition === 'vorn-links'
+      ? -d.breite / 2 + stairWidth / 2
+      : d.breite / 2 - stairWidth / 2;
+    if (stairPosition === 'vorn-links' || stairPosition === 'vorn-rechts') {
+      return {
+        stair: [frontX, 0, d.tiefe / 2 + landingDepth] as [number, number, number],
+        rotation: [0, 0, 0] as [number, number, number],
+        landing: [frontX, h, d.tiefe / 2 + landingDepth / 2] as [number, number, number],
+        landingSize: [stairWidth, 0.16, landingDepth] as [number, number, number],
+      };
+    }
+    const sideX = stairPosition === 'seitlich-links'
+      ? -d.breite / 2 - stairWidth / 2
+      : d.breite / 2 + stairWidth / 2;
+    return {
+      // Seitliche Treppen beginnen vorne und laufen parallel zur Fassade zur Wand hin.
+      stair: [sideX, 0, d.tiefe / 2 - landingDepth] as [number, number, number],
+      rotation: [0, Math.PI, 0] as [number, number, number],
+      landing: [sideX, h, d.tiefe / 2 - landingDepth / 2] as [number, number, number],
+      landingSize: [stairWidth, 0.16, landingDepth] as [number, number, number],
+    };
+  }, [stairPosition, d.breite, d.tiefe, h]);
 
   // Nahtlos kachelnde Belagstextur (RepeatWrapping), Kachelung folgt den Maßen
   const floorTexture = useMemo(() => {
@@ -172,7 +217,16 @@ const Model = () => {
       </mesh>
 
       <Deck width={d.breite} depth={d.tiefe} y={h} steel={steel} floorTexture={floorTexture} />
-      <Railing width={d.breite} depth={d.tiefe} y={h} color={floor} frameColor={frame} art={gel.art} id={gel.id} />
+      <Railing
+        width={d.breite}
+        depth={d.tiefe}
+        y={h}
+        color={floor}
+        frameColor={frame}
+        art={gel.art}
+        id={gel.id}
+        stairPosition={d.treppe === 'erweitert' ? stairPosition : undefined}
+      />
 
       {d.etagen === 2 && (
         <>
@@ -223,14 +277,26 @@ const Model = () => {
 
       {/* Treppe */}
       {d.treppe === 'erweitert' && (
-        <Staircase
-          platformHeight={h}
-          width={1.1}
-          stepColor={floor}
-          steelColor={steel}
-          position={[d.breite / 2 + 0.02, 0, d.tiefe / 2 - 0.75]}
-          rotation={[0, Math.PI / 2, 0]}
-        />
+        <>
+          <group position={stairLayout.landing}>
+            <mesh position={[0, -0.08, 0]} castShadow receiveShadow>
+              <boxGeometry args={stairLayout.landingSize} />
+              <meshStandardMaterial color={steel} metalness={0.7} roughness={0.38} />
+            </mesh>
+            <mesh position={[0, 0.011, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+              <planeGeometry args={[stairLayout.landingSize[0] - 0.04, stairLayout.landingSize[2] - 0.04]} />
+              <meshStandardMaterial map={floorTexture} roughness={0.75} metalness={0.05} />
+            </mesh>
+          </group>
+          <Staircase
+            platformHeight={h}
+            width={stairWidth}
+            stepColor={floor}
+            steelColor={steel}
+            position={stairLayout.stair}
+            rotation={stairLayout.rotation}
+          />
+        </>
       )}
     </group>
   );

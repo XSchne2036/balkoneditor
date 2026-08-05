@@ -208,7 +208,7 @@ export const StepAufbau = () => {
                 variant="outline"
                 onClick={() => update({ treppenPosition: position.id })}
                 className={`h-auto justify-start px-3 py-2 text-left text-sm ${
-                  d.treppenPosition === position.id
+                  (d.treppenPosition ?? 'vorn-rechts') === position.id
                     ? 'border-brand-petrol bg-brand-petrol/5 text-brand-petrol'
                     : 'border-border bg-surface'
                 }`}
