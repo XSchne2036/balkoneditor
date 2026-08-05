@@ -80,10 +80,10 @@ export const Staircase = ({
       height,
       thickness,
       // Mittelpunkt der Wange
-      y: totalRise / 2 - height * 0.1,
+      y: totalRise / 2 - height / 2 + stepThickness + 0.02,
       z: run / 2,
     };
-  }, [totalRise, run, tread]);
+  }, [totalRise, run, tread, stepThickness]);
 
   // Handlauf als CatmullRom-Kurve über die Stufen-Vorderkanten
   const handrailGeometry = useMemo(() => {

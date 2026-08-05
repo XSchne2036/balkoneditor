@@ -3,7 +3,7 @@ import logo from '@/assets/mrermin-logo.png';
 export const MrErminLogo = ({ className = '' }: { className?: string }) => (
   <div className={`flex items-center gap-3 ${className}`}>
     <img
-      src={logo.url}
+      src={logo}
       alt="Mr. Ermin Logo"
       width={44}
       height={44}
