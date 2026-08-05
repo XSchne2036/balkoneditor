@@ -124,37 +124,68 @@
 
 /* ===== MR. ERMIN Konfigurator Theme ===== */
 .mrermin {
-  --background: 165 13% 94%;
-  --foreground: 204 50% 11%;
+  --background: 40 60% 96%;
+  --foreground: 200 18% 13%;
   --card: 0 0% 100%;
-  --card-foreground: 204 50% 11%;
+  --card-foreground: 200 18% 13%;
   --popover: 0 0% 100%;
-  --popover-foreground: 204 50% 11%;
-  --primary: 196 51% 16%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 165 13% 94%;
-  --secondary-foreground: 204 50% 11%;
-  --muted: 165 8% 90%;
-  --muted-foreground: 200 12% 40%;
-  --accent: 46 81% 52%;
-  --accent-foreground: 204 50% 11%;
-  --border: 165 8% 90%;
-  --input: 165 8% 90%;
-  --ring: 196 51% 16%;
+  --popover-foreground: 200 18% 13%;
+  --primary: 200 18% 13%;
+  --primary-foreground: 40 71% 96%;
+  --secondary: 40 45% 92%;
+  --secondary-foreground: 200 18% 13%;
+  --muted: 40 30% 91%;
+  --muted-foreground: 200 8% 40%;
+  --accent: 34 88% 54%;
+  --accent-foreground: 200 18% 13%;
+  --destructive: 0 72% 48%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 40 25% 87%;
+  --input: 40 25% 87%;
+  --ring: 34 88% 54%;
   --radius: 0.75rem;
 
-  --brand-petrol: 196 51% 16%;
-  --brand-petrol-2: 198 50% 23%;
-  --brand-yellow: 46 81% 52%;
-  --brand-yellow-2: 45 87% 61%;
+  /* Markenfarben aus dem Mr. Ermin Logo */
+  --brand-petrol: 200 18% 13%;      /* Tiefes Tinten-Schwarz */
+  --brand-petrol-2: 200 14% 22%;
+  --brand-yellow: 34 88% 54%;       /* Logo-Orange */
+  --brand-yellow-2: 30 90% 46%;
   --surface: 0 0% 100%;
+  --canvas-bg: 40 60% 96%;
 
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
 }
 
+.mrermin.dark {
+  --background: 200 18% 10%;
+  --foreground: 40 40% 94%;
+  --card: 200 16% 14%;
+  --card-foreground: 40 40% 94%;
+  --popover: 200 16% 14%;
+  --popover-foreground: 40 40% 94%;
+  --primary: 34 88% 54%;
+  --primary-foreground: 200 18% 10%;
+  --secondary: 200 14% 18%;
+  --secondary-foreground: 40 40% 94%;
+  --muted: 200 14% 18%;
+  --muted-foreground: 40 12% 68%;
+  --accent: 34 88% 54%;
+  --accent-foreground: 200 18% 10%;
+  --border: 200 12% 24%;
+  --input: 200 12% 24%;
+  --ring: 34 88% 54%;
+
+  --brand-petrol: 34 88% 54%;
+  --brand-petrol-2: 30 90% 46%;
+  --brand-yellow: 34 88% 54%;
+  --brand-yellow-2: 30 90% 46%;
+  --surface: 200 16% 14%;
+  --canvas-bg: 200 18% 10%;
+}
+
 .nd-panel {
-  box-shadow: 0 8px 30px rgba(15, 30, 40, 0.08);
+  box-shadow: 0 8px 30px hsl(var(--foreground) / 0.08);
 }
 
 @keyframes nd-progress {
@@ -167,7 +198,7 @@
   inset-block: 0;
   width: 32%;
   border-radius: 9999px;
-  background: hsl(var(--brand-petrol));
+  background: hsl(var(--brand-yellow));
   animation: nd-progress 1.4s ease-in-out infinite;
 }
 
