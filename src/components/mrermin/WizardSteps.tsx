@@ -174,7 +174,7 @@ export const StepAufbau = () => {
           {(
             [
               { id: 'keine', label: 'Keine' },
-              { id: 'erweitert', label: 'Erweitert' },
+              { id: 'erweitert', label: 'Mit Treppe' },
             ] as const
           ).map((t) => (
             <button
@@ -192,6 +192,32 @@ export const StepAufbau = () => {
             </button>
           ))}
         </div>
+        {d.treppe === 'erweitert' && (
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {(
+              [
+                { id: 'vorn-links', label: 'Vorn links' },
+                { id: 'vorn-rechts', label: 'Vorn rechts' },
+                { id: 'seitlich-links', label: 'Seitlich links' },
+                { id: 'seitlich-rechts', label: 'Seitlich rechts' },
+              ] as const
+            ).map((position) => (
+              <Button
+                key={position.id}
+                type="button"
+                variant="outline"
+                onClick={() => update({ treppenPosition: position.id })}
+                className={`h-auto justify-start px-3 py-2 text-left text-sm ${
+                  (d.treppenPosition ?? 'vorn-rechts') === position.id
+                    ? 'border-brand-petrol bg-brand-petrol/5 text-brand-petrol'
+                    : 'border-border bg-surface'
+                }`}
+              >
+                {position.label}
+              </Button>
+            ))}
+          </div>
+        )}
       </Field>
     </div>
   );
@@ -464,7 +490,11 @@ export const StepKontakt = () => {
       `- Podesthöhe: ${meter(data.podesthoehe)}`,
       `- Etagen: ${data.etagen}`,
       `- Tragvariante: ${data.tragvariante}`,
-      `- Treppe: ${data.treppe}`,
+      `- Treppe: ${
+        data.treppe === 'erweitert'
+          ? `mit Anschluss-Podest (${(data.treppenPosition ?? 'vorn-rechts').replace('-', ' ')})`
+          : 'keine'
+      }`,
       `- Belag: ${data.belag.typ} (${data.belag.wpcProfil}, ${data.belag.wpcOberflaeche}, ${data.belag.wpcFarbe})`,
       `- Oberfläche: ${data.oberflaeche}`,
       `- Geländer: ${data.gelaender}`,
