@@ -1,14 +1,20 @@
+import logo from '@/assets/mrermin-logo.png.asset.json';
+
 export const MrErminLogo = ({ className = '' }: { className?: string }) => (
-  <div className={`flex items-center gap-2 ${className}`} aria-label="MR. ERMIN">
-    <span className="relative flex h-9 w-9 items-center justify-center rounded-md bg-brand-petrol">
-      <span className="absolute h-[2px] w-6 rotate-45 rounded-full bg-white" />
-    </span>
+  <div className={`flex items-center gap-3 ${className}`}>
+    <img
+      src={logo.url}
+      alt="Mr. Ermin Logo"
+      width={44}
+      height={44}
+      className="h-11 w-11 rounded-md object-contain"
+    />
     <span className="flex flex-col leading-none">
-      <span className="rounded-sm bg-brand-yellow px-1.5 py-0.5 text-[13px] font-bold uppercase tracking-[0.2em] text-brand-petrol">
-        NOVO
+      <span className="text-[15px] font-extrabold uppercase tracking-[0.18em] text-brand-petrol">
+        Mr. Ermin
       </span>
-      <span className="mt-0.5 px-1.5 text-[11px] font-semibold uppercase tracking-[0.34em] text-brand-petrol">
-        DACH
+      <span className="mt-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+        Balkon-Konfigurator
       </span>
     </span>
   </div>
