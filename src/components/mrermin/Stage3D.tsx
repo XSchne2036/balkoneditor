@@ -192,8 +192,8 @@ const Model = () => {
       ? -d.breite / 2 - stairWidth / 2
       : d.breite / 2 + stairWidth / 2;
     return {
-      // Seitliche Treppen beginnen vorne und laufen parallel zur Fassade zur Wand hin.
-      stair: [sideX, 0, d.tiefe / 2 - landingDepth] as [number, number, number],
+      // Seitliche Treppen laufen vom Anschluss-Podest an der Vorderkante zur Wand hin.
+      stair: [sideX, 0, d.tiefe / 2] as [number, number, number],
       rotation: [0, Math.PI, 0] as [number, number, number],
       landing: [sideX, h, d.tiefe / 2 - landingDepth / 2] as [number, number, number],
       landingSize: [stairWidth, 0.16, landingDepth] as [number, number, number],
