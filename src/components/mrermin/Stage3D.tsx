@@ -3,8 +3,8 @@ import { OrbitControls, ContactShadows, Environment } from '@react-three/drei';
 import { EffectComposer, Bloom, DepthOfField, Vignette } from '@react-three/postprocessing';
 import { Suspense, useMemo, useEffect } from 'react';
 import * as THREE from 'three';
-import { useConfigurator } from '@/store/novodach';
-import { GELAENDER, RAL_FARBEN, WANDSTRUKTUREN, WPC_FARBEN, BELAG_TYPEN } from '@/lib/novodach-data';
+import { useConfigurator } from '@/store/mrermin';
+import { GELAENDER, RAL_FARBEN, WANDSTRUKTUREN, WPC_FARBEN, BELAG_TYPEN } from '@/lib/mrermin-data';
 import { makeDeckTexture } from '@/lib/deck-texture';
 import { Staircase } from '@/components/three/Staircase';
 

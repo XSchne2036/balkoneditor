@@ -1,5 +1,5 @@
-export const NovodachLogo = ({ className = '' }: { className?: string }) => (
-  <div className={`flex items-center gap-2 ${className}`} aria-label="NOVO DACH">
+export const MrErminLogo = ({ className = '' }: { className?: string }) => (
+  <div className={`flex items-center gap-2 ${className}`} aria-label="MR. ERMIN">
     <span className="relative flex h-9 w-9 items-center justify-center rounded-md bg-brand-petrol">
       <span className="absolute h-[2px] w-6 rotate-45 rounded-full bg-white" />
     </span>

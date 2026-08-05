@@ -1,10 +1,10 @@
-import { NovodachLogo } from './NovodachLogo';
+import { MrErminLogo } from './MrErminLogo';
 
 export const LoaderScreen = () => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
     <div className="nd-panel w-[min(90vw,420px)] rounded-xl bg-surface p-8 text-center">
       <div className="flex justify-center">
-        <NovodachLogo />
+        <MrErminLogo />
       </div>
       <h1 className="mt-6 text-2xl font-bold uppercase tracking-widest text-brand-petrol">
         Konfigurator startet

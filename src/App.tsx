@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
-import Novodach from "./pages/Novodach";
+import MrErmin from "./pages/MrErmin";
 import ConfiguratorPage from "./pages/Configurator";
 import AdminPage from "./pages/Admin";
 import NotFound from "./pages/NotFound";
@@ -19,7 +19,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Novodach />} />
+          <Route path="/" element={<MrErmin />} />
           <Route path="/classic" element={<Index />} />
 
           <Route path="/c/:manufacturer/:preset" element={<ConfiguratorPage />} />

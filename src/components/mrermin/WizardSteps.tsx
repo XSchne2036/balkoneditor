@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useConfigurator } from '@/store/novodach';
+import { useConfigurator } from '@/store/mrermin';
 import {
   BELAG_TYPEN,
   EXTRAS,
@@ -26,7 +26,7 @@ import {
   WPC_PROFILE,
   eur,
   meter,
-} from '@/lib/novodach-data';
+} from '@/lib/mrermin-data';
 import { RalPicker } from './RalPicker';
 import { Check, Info, Plus } from 'lucide-react';
 import { toast } from 'sonner';

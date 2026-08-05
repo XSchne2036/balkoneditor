@@ -1,8 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useConfigurator } from '@/store/novodach';
-import { STEPS } from '@/lib/novodach-data';
+import { useConfigurator } from '@/store/mrermin';
+import { STEPS } from '@/lib/mrermin-data';
 import { StepIndicator } from './StepIndicator';
 import {
   StepAufbau,

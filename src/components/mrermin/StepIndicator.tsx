@@ -1,5 +1,5 @@
-import { STEPS } from '@/lib/novodach-data';
-import { useConfigurator } from '@/store/novodach';
+import { STEPS } from '@/lib/mrermin-data';
+import { useConfigurator } from '@/store/mrermin';
 
 export const StepIndicator = () => {
   const step = useConfigurator((s) => s.step);

@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { NovodachLogo } from '@/components/novodach/NovodachLogo';
-import { LoaderScreen } from '@/components/novodach/LoaderScreen';
-import { Stage3D } from '@/components/novodach/Stage3D';
-import { WizardPanel } from '@/components/novodach/WizardPanel';
-import { SummarySheet } from '@/components/novodach/SummarySheet';
-import { useConfigurator } from '@/store/novodach';
+import { MrErminLogo } from '@/components/mrermin/MrErminLogo';
+import { LoaderScreen } from '@/components/mrermin/LoaderScreen';
+import { Stage3D } from '@/components/mrermin/Stage3D';
+import { WizardPanel } from '@/components/mrermin/WizardPanel';
+import { SummarySheet } from '@/components/mrermin/SummarySheet';
+import { useConfigurator } from '@/store/mrermin';
 
-const Novodach = () => {
+const MrErmin = () => {
   const [ready, setReady] = useState(false);
   const next = useConfigurator((s) => s.next);
   const prev = useConfigurator((s) => s.prev);
@@ -29,10 +29,10 @@ const Novodach = () => {
   }, [next, prev]);
 
   return (
-    <div className="novodach min-h-screen">
+    <div className="mrermin min-h-screen">
       <Helmet>
         <html lang="de" />
-        <title>NOVO DACH Balkon-Konfigurator — 3D Balkon planen</title>
+        <title>MR. ERMIN Balkon-Konfigurator — 3D Balkon planen</title>
         <meta
           name="description"
           content="Planen Sie Ihren Balkon in 3D: Maße, Bodenbelag, Geländer, RAL-Farbe und Zusatzleistungen mit Live-Preis inkl. MwSt."
@@ -42,7 +42,7 @@ const Novodach = () => {
       {!ready && <LoaderScreen />}
 
       <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-border bg-surface px-4 py-3 lg:px-6">
-        <NovodachLogo />
+        <MrErminLogo />
         <SummarySheet />
       </header>
 
@@ -58,4 +58,4 @@ const Novodach = () => {
   );
 };
 
-export default Novodach;
+export default MrErmin;

@@ -1,8 +1,8 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { useConfigurator } from '@/store/novodach';
-import { calcPrice } from '@/lib/novodach-price';
-import { eur } from '@/lib/novodach-data';
+import { useConfigurator } from '@/store/mrermin';
+import { calcPrice } from '@/lib/mrermin-price';
+import { eur } from '@/lib/mrermin-data';
 import { Receipt } from 'lucide-react';
 
 export const SummarySheet = () => {
