@@ -1,4 +1,4 @@
-import logo from '@/assets/mrermin-logo.png.asset.json';
+import logo from '@/assets/mrermin-logo.png';
 
 export const MrErminLogo = ({ className = '' }: { className?: string }) => (
   <div className={`flex items-center gap-3 ${className}`}>
