@@ -95,7 +95,7 @@ npm run build   # Ausgabe in dist/ – als statische SPA deploybar (Vercel, Netl
 ```html
 <iframe
   src="https://balkoneditor.lovable.app/"
-  title="NOVO DACH Balkon-Konfigurator"
+  title="Mr Ermin Balkon-Konfigurator"
   style="width:100%;height:900px;border:0"
   loading="lazy"
   allow="fullscreen"
