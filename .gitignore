@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+start_tunnel.py
+demourl.txt
+pnpm-lock.yaml
+pnpm-workspace.yaml
+package-lock.json
