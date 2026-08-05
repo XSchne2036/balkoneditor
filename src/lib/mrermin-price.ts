@@ -44,7 +44,7 @@ export function calcPrice(d: ConfigData): PriceResult {
   }
 
   if (d.tragvariante === 'wandseitig') items.push({ label: 'Wandseitige Stützen', value: 600 });
-  if (d.treppe === 'erweitert') items.push({ label: 'Treppe (Erweitert)', value: 1450 });
+  if (d.treppe === 'erweitert') items.push({ label: 'Treppe mit Anschluss-Podest', value: 1450 });
 
   EXTRAS.forEach((e) => {
     if (d.extras[e.id]) items.push({ label: e.name, value: e.preis });

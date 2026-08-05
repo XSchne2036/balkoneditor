@@ -33,6 +33,7 @@ export interface ConfigData {
   etagen: 1 | 2;
   tragvariante: 'selbst' | 'wandseitig';
   treppe: 'keine' | 'erweitert';
+  treppenPosition: 'vorn-links' | 'vorn-rechts' | 'seitlich-links' | 'seitlich-rechts';
   belag: {
     typ: BelagTyp;
     wpcProfil: WpcProfil;
@@ -69,6 +70,7 @@ export const defaultData: ConfigData = {
   etagen: 1,
   tragvariante: 'selbst',
   treppe: 'erweitert',
+  treppenPosition: 'vorn-rechts',
   belag: { typ: 'wpc', wpcProfil: 'hohl', wpcOberflaeche: 'matt', wpcFarbe: 'anthrazit' },
   oberflaeche: 'feuerverzinkt',
   gelaender: '001',

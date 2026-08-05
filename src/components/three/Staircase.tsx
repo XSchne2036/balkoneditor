@@ -67,8 +67,8 @@ export const Staircase = ({
     [steps, riser, tread, stepThickness, totalRise]
   );
 
-  // Schräge Wange: Länge und Neigung aus Steigung/Auftritt.
-  // Extra-Länge + Dicke sorgen für Überlappung der Stufen (kein Spalt).
+  // Die lokale Treppe fällt in +z ab. Deshalb muss die Wange positiv um X
+  // gedreht werden: ihr +z-Ende liegt dadurch tiefer statt höher.
   const stringer = useMemo(() => {
     const angle = Math.atan2(totalRise, run);
     const length = Math.hypot(totalRise, run) + tread;
@@ -80,7 +80,7 @@ export const Staircase = ({
       height,
       thickness,
       // Mittelpunkt der Wange
-      y: totalRise / 2 - height / 2 + stepThickness + 0.02,
+      y: totalRise / 2 - height / 2 + stepThickness,
       z: run / 2,
     };
   }, [totalRise, run, tread, stepThickness]);
@@ -115,7 +115,7 @@ export const Staircase = ({
         <mesh
           key={`stringer-${sx}`}
           position={[(sx * (width + stringer.thickness)) / 2, stringer.y, stringer.z]}
-          rotation={[-stringer.angle, 0, 0]}
+          rotation={[stringer.angle, 0, 0]}
           material={steelMat}
           castShadow
           receiveShadow
