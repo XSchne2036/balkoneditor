@@ -35,7 +35,7 @@ export const BELAG_TYPEN: {
   {
     id: 'alu',
     name: 'Alu-Dielen',
-    sub: 'Novodach AluTec TerraLine',
+    sub: 'MrErmin AluTec TerraLine',
     beschreibung: 'Pulverbeschichtete Aluminium-Dielen, extrem langlebig und wartungsarm.',
     color: '#9aa3a8',
   },

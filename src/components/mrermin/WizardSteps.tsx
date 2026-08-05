@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useConfigurator } from '@/store/novodach';
+import { useConfigurator } from '@/store/mrermin';
 import {
   BELAG_TYPEN,
   EXTRAS,
@@ -26,7 +26,8 @@ import {
   WPC_PROFILE,
   eur,
   meter,
-} from '@/lib/novodach-data';
+} from '@/lib/mrermin-data';
+import { calcPrice } from '@/lib/mrermin-price';
 import { RalPicker } from './RalPicker';
 import { Check, Info, Plus } from 'lucide-react';
 import { toast } from 'sonner';
@@ -446,11 +447,42 @@ export const StepKontakt = () => {
   const setKontakt = useConfigurator((s) => s.setKontakt);
   const reset = useConfigurator((s) => s.reset);
 
-  const submit = async (ev: React.FormEvent) => {
+  const submit = (ev: React.FormEvent) => {
     ev.preventDefault();
-    // Mock-Endpoint
-    console.log('POST /api/lead', { kontakt: k, konfiguration: data });
-    toast.success('Vielen Dank! Ihre Anfrage wurde versendet.');
+    const price = calcPrice(data);
+    const lines = [
+      `Anrede: ${k.anrede}`,
+      `Name: ${k.vorname} ${k.nachname}`,
+      k.firma ? `Firma: ${k.firma}` : '',
+      `E-Mail: ${k.email}`,
+      `Telefon: ${k.telefon}`,
+      `Adresse: ${k.strasse}, ${k.plz} ${k.ort}, ${k.land}`,
+      '',
+      'Konfiguration:',
+      `- Breite: ${meter(data.breite)}`,
+      `- Tiefe: ${meter(data.tiefe)}`,
+      `- Podesthöhe: ${meter(data.podesthoehe)}`,
+      `- Etagen: ${data.etagen}`,
+      `- Tragvariante: ${data.tragvariante}`,
+      `- Treppe: ${data.treppe}`,
+      `- Belag: ${data.belag.typ} (${data.belag.wpcProfil}, ${data.belag.wpcOberflaeche}, ${data.belag.wpcFarbe})`,
+      `- Oberfläche: ${data.oberflaeche}`,
+      `- Geländer: ${data.gelaender}`,
+      `- Wandstruktur: ${data.wand}`,
+      '',
+      'Positionen:',
+      ...price.items.map((i) => `- ${i.label}: ${eur(i.value)}`),
+      `Gesamt inkl. MwSt.: ${eur(price.brutto)}`,
+      '',
+      'Nachricht:',
+      k.nachricht,
+    ].filter(Boolean);
+
+    const href = `mailto:info@mrermin.de?subject=${encodeURIComponent(
+      `Balkon-Anfrage ${k.vorname} ${k.nachname}`
+    )}&body=${encodeURIComponent(lines.join('\n'))}`;
+    window.location.href = href;
+    toast.success('Ihre Anfrage wird an info@mrermin.de gesendet.');
   };
 
   return (

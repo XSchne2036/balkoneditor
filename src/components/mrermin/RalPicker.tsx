@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { RAL_FARBEN, RAL_HINWEIS, RAL_QUICK } from '@/lib/novodach-data';
+import { RAL_FARBEN, RAL_HINWEIS, RAL_QUICK } from '@/lib/mrermin-data';
 import { Check } from 'lucide-react';
 
 interface Props {

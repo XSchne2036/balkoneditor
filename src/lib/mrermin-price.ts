@@ -1,5 +1,5 @@
-import { EXTRAS, GELAENDER } from '@/lib/novodach-data';
-import type { ConfigData } from '@/store/novodach';
+import { EXTRAS, GELAENDER } from '@/lib/mrermin-data';
+import type { ConfigData } from '@/store/mrermin';
 
 export interface PriceItem {
   label: string;

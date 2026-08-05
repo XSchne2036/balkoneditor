@@ -9,7 +9,7 @@ import type {
   WpcFarbe,
   WpcOberflaeche,
   WpcProfil,
-} from '@/lib/novodach-data';
+} from '@/lib/mrermin-data';
 
 export interface ContactForm {
   anrede: 'Herr' | 'Frau' | 'Divers';
@@ -117,6 +117,6 @@ export const useConfigurator = create<State>()(
       setKontakt: (patch) => set((st) => ({ kontakt: { ...st.kontakt, ...patch } })),
       reset: () => set({ step: 1, data: defaultData, kontakt: defaultContact }),
     }),
-    { name: 'novodach-config-v1' }
+    { name: 'mrermin-config-v1' }
   )
 );

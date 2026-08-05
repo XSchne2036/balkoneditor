@@ -3,8 +3,8 @@ import { OrbitControls, ContactShadows, Environment } from '@react-three/drei';
 import { EffectComposer, Bloom, DepthOfField, Vignette } from '@react-three/postprocessing';
 import { Suspense, useMemo, useEffect } from 'react';
 import * as THREE from 'three';
-import { useConfigurator } from '@/store/novodach';
-import { GELAENDER, RAL_FARBEN, WANDSTRUKTUREN, WPC_FARBEN, BELAG_TYPEN } from '@/lib/novodach-data';
+import { useConfigurator } from '@/store/mrermin';
+import { GELAENDER, RAL_FARBEN, WANDSTRUKTUREN, WPC_FARBEN, BELAG_TYPEN } from '@/lib/mrermin-data';
 import { makeDeckTexture } from '@/lib/deck-texture';
 import { Staircase } from '@/components/three/Staircase';
 
@@ -228,7 +228,7 @@ const Model = () => {
           width={1.1}
           stepColor={floor}
           steelColor={steel}
-          position={[d.breite / 2 + 0.75, 0, d.tiefe / 2 - 0.2]}
+          position={[d.breite / 2 + 0.02, 0, d.tiefe / 2 - 0.75]}
           rotation={[0, Math.PI / 2, 0]}
         />
       )}
@@ -241,8 +241,9 @@ const Effects = () => (
     {/* Bloom auf Lichtspots / Highlights */}
     <Bloom intensity={0.55} luminanceThreshold={0.75} luminanceSmoothing={0.25} mipmapBlur />
     {/* Sanftes Depth-of-Field um den Balkon */}
-    <DepthOfField focusDistance={0.014} focalLength={0.05} bokehScale={2.4} height={720} />
-    <Vignette eskil={false} offset={0.18} darkness={0.55} />
+    {/* Sehr dezente Tiefenschärfe – Balkon bleibt scharf */}
+    <DepthOfField focusDistance={0.03} focalLength={0.35} bokehScale={1.1} height={480} />
+    <Vignette eskil={false} offset={0.3} darkness={0.35} />
   </EffectComposer>
 );
 
@@ -254,7 +255,7 @@ export const Stage3D = () => {
   const speed = { aus: 0, langsam: 0.4, normal: 1, schnell: 2.2 }[anim];
 
   return (
-    <div className="h-full w-full" role="region" aria-label="3D-Vorschau des Balkons">
+    <div className="h-full w-full bg-background" role="region" aria-label="3D-Vorschau des Balkons">
       <Canvas
         shadows={{ type: THREE.PCFSoftShadowMap }}
         dpr={[1, 2]}
@@ -264,9 +265,9 @@ export const Stage3D = () => {
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.05,
           powerPreference: 'high-performance',
+          alpha: true,
         }}
       >
-        <color attach="background" args={['#EEF2F1']} />
         <ambientLight intensity={0.35} />
         <directionalLight
           position={[8, 12, 6]}
