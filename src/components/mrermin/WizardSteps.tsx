@@ -492,7 +492,7 @@ export const StepKontakt = () => {
       `- Tragvariante: ${data.tragvariante}`,
       `- Treppe: ${
         data.treppe === 'erweitert'
-          ? `mit Anschluss-Podest (${(data.treppenPosition ?? 'vorn-rechts').replaceAll('-', ' ')})`
+          ? `mit Anschluss-Podest (${(data.treppenPosition ?? 'vorn-rechts').replace('-', ' ')})`
           : 'keine'
       }`,
       `- Belag: ${data.belag.typ} (${data.belag.wpcProfil}, ${data.belag.wpcOberflaeche}, ${data.belag.wpcFarbe})`,
