@@ -93,22 +93,6 @@ export const Staircase = ({
     };
   }, [totalRise, run, tread, stepThickness]);
 
-  // Handlauf als CatmullRom-Kurve über die Stufen-Vorderkanten
-  const handrailGeometry = useMemo(() => {
-    const railHeight = 0.95;
-    const points = stepPositions.map(
-      ([y, z]) => new THREE.Vector3(0, y + stepThickness / 2 + railHeight, z)
-    );
-    points.unshift(new THREE.Vector3(0, totalRise + railHeight, -tread * 0.6));
-    points.push(
-      new THREE.Vector3(0, stepPositions[stepPositions.length - 1][0] + railHeight, run + tread * 0.4)
-    );
-    const curve = new THREE.CatmullRomCurve3(points, false, 'catmullrom', 0.5);
-    return new THREE.TubeGeometry(curve, Math.max(24, steps * 6), 0.022, 12, false);
-  }, [stepPositions, stepThickness, totalRise, run, tread, steps]);
-
-  const postCount = Math.max(2, Math.ceil(steps / 3));
-
   return (
     <group position={position} rotation={rotation}>
       {/* Stufen */}
@@ -132,27 +116,23 @@ export const Staircase = ({
         </mesh>
       ))}
 
-      {/* Handlauf (CatmullRom) inkl. Pfosten */}
+      {/* Geländer — identisch zum Balkongeländer, entlang der Treppensteigung */}
       {[-1, 1].map((sx) => (
-        <group key={`rail-${sx}`} position={[(sx * (width + stringer.thickness)) / 2, 0, 0]}>
-          <mesh geometry={handrailGeometry} material={steelMat} castShadow />
-          {Array.from({ length: postCount }).map((_, p) => {
-            const idx = Math.min(
-              stepPositions.length - 1,
-              Math.round((p * (stepPositions.length - 1)) / (postCount - 1 || 1))
-            );
-            const [y, z] = stepPositions[idx];
-            const top = y + stepThickness / 2 + 0.95;
-            return (
-              <mesh key={p} position={[0, (y + top) / 2, z]} material={steelMat} castShadow>
-                <cylinderGeometry args={[0.02, 0.02, top - y, 10]} />
-              </mesh>
-            );
-          })}
-        </group>
+        <RailSegment
+          key={`rail-${sx}`}
+          len={run}
+          slope={-stringer.angle}
+          art={railArt}
+          id={railId}
+          frameColor={steelColor}
+          color={stepColor}
+          position={[(sx * (width + stringer.thickness)) / 2, totalRise / 2, run / 2]}
+          rotation={[0, -Math.PI / 2, 0]}
+        />
       ))}
     </group>
   );
+
 };
 
 export default Staircase;
