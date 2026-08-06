@@ -7,6 +7,8 @@ import { useConfigurator } from '@/store/mrermin';
 import { GELAENDER, RAL_FARBEN, WANDSTRUKTUREN, WPC_FARBEN, BELAG_TYPEN } from '@/lib/mrermin-data';
 import { makeDeckTexture } from '@/lib/deck-texture';
 import { Staircase } from '@/components/three/Staircase';
+import { RailSegment } from '@/components/three/RailSegment';
+
 
 const steelColor = (oberflaeche: string) => {
   if (oberflaeche === 'feuerverzinkt') return '#b9c0c4';
