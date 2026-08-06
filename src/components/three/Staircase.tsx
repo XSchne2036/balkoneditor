@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
+import { RailSegment, type RailArt } from '@/components/three/RailSegment';
 
 /** 5 mm — oberste Stufe wird um diesen Betrag angehoben, damit sie das Podest berührt. */
 export const TOP_GAP_TO_PLATFORM = 0.005;
@@ -19,13 +20,17 @@ export interface StaircaseProps {
   stepColor?: string;
   /** Farbe der Wangen / Handlauf (Stahl) */
   steelColor?: string;
+  /** Geländer-Art wie am Balkon */
+  railArt?: RailArt;
+  /** Geländer-Variante (ID) wie am Balkon */
+  railId?: string;
   position?: [number, number, number];
   rotation?: [number, number, number];
 }
 
 /**
  * Parametrische Außentreppe: Stufen, durchgehende Stahl-Wangen (überlappend,
- * keine Spalte) und ein Handlauf entlang einer CatmullRom-Kurve.
+ * keine Spalte) und ein Geländer identisch zum Balkongeländer.
  */
 export const Staircase = ({
   platformHeight,
@@ -35,9 +40,12 @@ export const Staircase = ({
   stepThickness = 0.05,
   stepColor = '#8a8378',
   steelColor = '#b9c0c4',
+  railArt = 'stahl',
+  railId = '001',
   position = [0, 0, 0],
   rotation = [0, 0, 0],
 }: StaircaseProps) => {
+
   // Podesthöhe inkl. 5 mm Zuschlag, damit die oberste Stufe das Podest berührt
   const totalRise = platformHeight + TOP_GAP_TO_PLATFORM;
 
