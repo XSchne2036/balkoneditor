@@ -7,6 +7,8 @@ import { useConfigurator } from '@/store/mrermin';
 import { GELAENDER, RAL_FARBEN, WANDSTRUKTUREN, WPC_FARBEN, BELAG_TYPEN } from '@/lib/mrermin-data';
 import { makeDeckTexture } from '@/lib/deck-texture';
 import { Staircase } from '@/components/three/Staircase';
+import { RailSegment } from '@/components/three/RailSegment';
+
 
 const steelColor = (oberflaeche: string) => {
   if (oberflaeche === 'feuerverzinkt') return '#b9c0c4';
@@ -65,78 +67,23 @@ const Railing = ({
 
   return (
     <group position={[0, y, 0]}>
-      {sides.map((s, i) => {
-        const posts = Math.max(2, Math.ceil(s.len / 1.5) + 1);
-        return (
-          <group key={i} position={[s.pos[0], 0, s.pos[2]]} rotation={[0, s.rot, 0]}>
-            {/* Handlauf */}
-            <mesh position={[0, h, 0]} castShadow>
-              <boxGeometry args={[s.len, 0.06, 0.06]} />
-              <meshStandardMaterial color={frameColor} metalness={0.7} roughness={0.35} />
-            </mesh>
-            {/* Pfosten */}
-            {Array.from({ length: posts }).map((_, p) => (
-              <mesh
-                key={p}
-                position={[-s.len / 2 + (s.len / (posts - 1)) * p, h / 2, 0]}
-                castShadow
-              >
-                <cylinderGeometry args={[0.04, 0.04, h, 12]} />
-                <meshStandardMaterial color={frameColor} metalness={0.7} roughness={0.35} />
-              </mesh>
-            ))}
-            {/* Füllung */}
-            {art === 'glas' && (
-              <mesh position={[0, h / 2, 0]} castShadow>
-                <boxGeometry args={[s.len - 0.08, h - 0.12, 0.012]} />
-                <meshPhysicalMaterial
-                  color={id === '005' ? '#e6eef0' : '#dbeaf0'}
-                  transparent
-                  opacity={id === '005' ? 0.7 : 0.55}
-                  roughness={id === '005' ? 0.35 : 0.05}
-                  metalness={0}
-                  transmission={0.9}
-                  ior={1.45}
-                  thickness={0.012}
-                  clearcoat={1}
-                  clearcoatRoughness={0.05}
-                  envMapIntensity={1.2}
-                />
-              </mesh>
-            )}
-            {art === 'alublech' && (
-              <mesh position={[0, h / 2, 0]}>
-                <boxGeometry args={[s.len - 0.08, h - 0.12, 0.012]} />
-                <meshStandardMaterial color={color} metalness={0.85} roughness={0.3} />
-              </mesh>
-            )}
-            {art === 'stahl' &&
-              (id === '002'
-                ? Array.from({ length: 4 }).map((_, b) => (
-                    <mesh key={b} position={[0, 0.22 + b * 0.28, 0]}>
-                      <boxGeometry args={[s.len - 0.08, 0.05, 0.012]} />
-                      <meshStandardMaterial color={frameColor} metalness={0.8} roughness={0.3} />
-                    </mesh>
-                  ))
-                : Array.from({ length: Math.max(2, Math.floor(s.len / 0.12)) }).map((_, b, arr) => (
-                    <mesh
-                      key={b}
-                      position={[-s.len / 2 + 0.06 + (b * (s.len - 0.12)) / (arr.length - 1), h / 2, 0]}
-                    >
-                      <cylinderGeometry args={[0.012, 0.012, h - 0.12, 8]} />
-                      <meshStandardMaterial
-                        color={id === '003' ? '#d3d8db' : frameColor}
-                        metalness={0.9}
-                        roughness={id === '003' ? 0.15 : 0.35}
-                      />
-                    </mesh>
-                  )))}
-          </group>
-        );
-      })}
+      {sides.map((s, i) => (
+        <RailSegment
+          key={i}
+          len={s.len}
+          art={art}
+          id={id}
+          frameColor={frameColor}
+          color={color}
+          height={h}
+          position={[s.pos[0], 0, s.pos[2]]}
+          rotation={[0, s.rot, 0]}
+        />
+      ))}
     </group>
   );
 };
+
 
 const Deck = ({
   width,
@@ -177,29 +124,40 @@ const Model = () => {
   const landingDepth = 0.9;
 
   const stairLayout = useMemo(() => {
+    type Rail = { pos: [number, number, number]; len: number; rot: number };
     const frontX = stairPosition === 'vorn-links'
       ? -d.breite / 2 + stairWidth / 2
       : d.breite / 2 - stairWidth / 2;
     if (stairPosition === 'vorn-links' || stairPosition === 'vorn-rechts') {
+      const lz = d.tiefe / 2 + landingDepth / 2;
       return {
         stair: [frontX, 0, d.tiefe / 2 + landingDepth] as [number, number, number],
         rotation: [0, 0, 0] as [number, number, number],
-        landing: [frontX, h, d.tiefe / 2 + landingDepth / 2] as [number, number, number],
+        landing: [frontX, h, lz] as [number, number, number],
         landingSize: [stairWidth, 0.16, landingDepth] as [number, number, number],
+        landingRails: [
+          { pos: [frontX - stairWidth / 2, h, lz], len: landingDepth, rot: Math.PI / 2 },
+          { pos: [frontX + stairWidth / 2, h, lz], len: landingDepth, rot: Math.PI / 2 },
+        ] as Rail[],
       };
     }
-    const sideX = stairPosition === 'seitlich-links'
-      ? -d.breite / 2 - stairWidth / 2
-      : d.breite / 2 + stairWidth / 2;
+    const dir = stairPosition === 'seitlich-links' ? -1 : 1;
+    const sideX = dir * (d.breite / 2 + stairWidth / 2);
+    const lz = -d.tiefe / 2 + landingDepth / 2;
     return {
-      // Seitliches Podest liegt neben dem Balkon an der Vorderkante,
-      // die Treppe läuft von dort nach vorn (von der Wand weg).
-      stair: [sideX, 0, d.tiefe / 2] as [number, number, number],
-      rotation: [0, 0, 0] as [number, number, number],
-      landing: [sideX, h, d.tiefe / 2 - landingDepth / 2] as [number, number, number],
+      // Podest sitzt hinten (wandseitig) neben dem Balkon,
+      // die Treppe läuft von dort parallel zur Wand seitlich nach außen.
+      stair: [dir * (d.breite / 2 + stairWidth), 0, lz] as [number, number, number],
+      rotation: [0, (dir * Math.PI) / 2, 0] as [number, number, number],
+      landing: [sideX, h, lz] as [number, number, number],
       landingSize: [stairWidth, 0.16, landingDepth] as [number, number, number],
+      landingRails: [
+        { pos: [sideX, h, -d.tiefe / 2 + landingDepth], len: stairWidth, rot: 0 },
+        { pos: [sideX, h, -d.tiefe / 2], len: stairWidth, rot: 0 },
+      ] as Rail[],
     };
   }, [stairPosition, d.breite, d.tiefe, h]);
+
 
   // Nahtlos kachelnde Belagstextur (RepeatWrapping), Kachelung folgt den Maßen
   const floorTexture = useMemo(() => {
@@ -289,14 +247,30 @@ const Model = () => {
               <meshStandardMaterial map={floorTexture} roughness={0.75} metalness={0.05} />
             </mesh>
           </group>
+          {stairLayout.landingRails.map((r, i) => (
+            <RailSegment
+              key={`landing-rail-${i}`}
+              len={r.len}
+              art={gel.art}
+              id={gel.id}
+              frameColor={frame}
+              color={floor}
+              position={r.pos}
+              rotation={[0, r.rot, 0]}
+            />
+          ))}
           <Staircase
             platformHeight={h}
             width={stairWidth}
             stepColor={floor}
             steelColor={steel}
+            railFrameColor={frame}
+            railArt={gel.art}
+            railId={gel.id}
             position={stairLayout.stair}
             rotation={stairLayout.rotation}
           />
+
         </>
       )}
     </group>

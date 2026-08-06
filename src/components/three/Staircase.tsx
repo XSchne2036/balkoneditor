@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
+import { RailSegment, type RailArt } from '@/components/three/RailSegment';
 
 /** 5 mm — oberste Stufe wird um diesen Betrag angehoben, damit sie das Podest berührt. */
 export const TOP_GAP_TO_PLATFORM = 0.005;
@@ -19,13 +20,19 @@ export interface StaircaseProps {
   stepColor?: string;
   /** Farbe der Wangen / Handlauf (Stahl) */
   steelColor?: string;
+  /** Geländer-Art wie am Balkon */
+  railArt?: RailArt;
+  /** Geländer-Variante (ID) wie am Balkon */
+  railId?: string;
+  /** Farbe des Treppengeländers (wie Balkongeländer) */
+  railFrameColor?: string;
   position?: [number, number, number];
   rotation?: [number, number, number];
 }
 
 /**
  * Parametrische Außentreppe: Stufen, durchgehende Stahl-Wangen (überlappend,
- * keine Spalte) und ein Handlauf entlang einer CatmullRom-Kurve.
+ * keine Spalte) und ein Geländer identisch zum Balkongeländer.
  */
 export const Staircase = ({
   platformHeight,
@@ -35,9 +42,13 @@ export const Staircase = ({
   stepThickness = 0.05,
   stepColor = '#8a8378',
   steelColor = '#b9c0c4',
+  railArt = 'stahl',
+  railId = '001',
+  railFrameColor,
   position = [0, 0, 0],
   rotation = [0, 0, 0],
 }: StaircaseProps) => {
+
   // Podesthöhe inkl. 5 mm Zuschlag, damit die oberste Stufe das Podest berührt
   const totalRise = platformHeight + TOP_GAP_TO_PLATFORM;
 
@@ -85,22 +96,6 @@ export const Staircase = ({
     };
   }, [totalRise, run, tread, stepThickness]);
 
-  // Handlauf als CatmullRom-Kurve über die Stufen-Vorderkanten
-  const handrailGeometry = useMemo(() => {
-    const railHeight = 0.95;
-    const points = stepPositions.map(
-      ([y, z]) => new THREE.Vector3(0, y + stepThickness / 2 + railHeight, z)
-    );
-    points.unshift(new THREE.Vector3(0, totalRise + railHeight, -tread * 0.6));
-    points.push(
-      new THREE.Vector3(0, stepPositions[stepPositions.length - 1][0] + railHeight, run + tread * 0.4)
-    );
-    const curve = new THREE.CatmullRomCurve3(points, false, 'catmullrom', 0.5);
-    return new THREE.TubeGeometry(curve, Math.max(24, steps * 6), 0.022, 12, false);
-  }, [stepPositions, stepThickness, totalRise, run, tread, steps]);
-
-  const postCount = Math.max(2, Math.ceil(steps / 3));
-
   return (
     <group position={position} rotation={rotation}>
       {/* Stufen */}
@@ -124,27 +119,23 @@ export const Staircase = ({
         </mesh>
       ))}
 
-      {/* Handlauf (CatmullRom) inkl. Pfosten */}
+      {/* Geländer — identisch zum Balkongeländer, entlang der Treppensteigung */}
       {[-1, 1].map((sx) => (
-        <group key={`rail-${sx}`} position={[(sx * (width + stringer.thickness)) / 2, 0, 0]}>
-          <mesh geometry={handrailGeometry} material={steelMat} castShadow />
-          {Array.from({ length: postCount }).map((_, p) => {
-            const idx = Math.min(
-              stepPositions.length - 1,
-              Math.round((p * (stepPositions.length - 1)) / (postCount - 1 || 1))
-            );
-            const [y, z] = stepPositions[idx];
-            const top = y + stepThickness / 2 + 0.95;
-            return (
-              <mesh key={p} position={[0, (y + top) / 2, z]} material={steelMat} castShadow>
-                <cylinderGeometry args={[0.02, 0.02, top - y, 10]} />
-              </mesh>
-            );
-          })}
-        </group>
+        <RailSegment
+          key={`rail-${sx}`}
+          len={run}
+          slope={-stringer.angle}
+          art={railArt}
+          id={railId}
+          frameColor={railFrameColor ?? steelColor}
+          color={stepColor}
+          position={[(sx * (width + stringer.thickness)) / 2, totalRise / 2, run / 2]}
+          rotation={[0, -Math.PI / 2, 0]}
+        />
       ))}
     </group>
   );
+
 };
 
 export default Staircase;
