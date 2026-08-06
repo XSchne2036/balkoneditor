@@ -247,14 +247,29 @@ const Model = () => {
               <meshStandardMaterial map={floorTexture} roughness={0.75} metalness={0.05} />
             </mesh>
           </group>
+          {stairLayout.landingRails.map((r, i) => (
+            <RailSegment
+              key={`landing-rail-${i}`}
+              len={r.len}
+              art={gel.art}
+              id={gel.id}
+              frameColor={frame}
+              color={floor}
+              position={r.pos}
+              rotation={[0, r.rot, 0]}
+            />
+          ))}
           <Staircase
             platformHeight={h}
             width={stairWidth}
             stepColor={floor}
-            steelColor={steel}
+            steelColor={frame}
+            railArt={gel.art}
+            railId={gel.id}
             position={stairLayout.stair}
             rotation={stairLayout.rotation}
           />
+
         </>
       )}
     </group>
