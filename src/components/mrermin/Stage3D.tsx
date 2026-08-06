@@ -263,7 +263,8 @@ const Model = () => {
             platformHeight={h}
             width={stairWidth}
             stepColor={floor}
-            steelColor={frame}
+            steelColor={steel}
+            railFrameColor={frame}
             railArt={gel.art}
             railId={gel.id}
             position={stairLayout.stair}

@@ -24,6 +24,8 @@ export interface StaircaseProps {
   railArt?: RailArt;
   /** Geländer-Variante (ID) wie am Balkon */
   railId?: string;
+  /** Farbe des Treppengeländers (wie Balkongeländer) */
+  railFrameColor?: string;
   position?: [number, number, number];
   rotation?: [number, number, number];
 }
@@ -42,6 +44,7 @@ export const Staircase = ({
   steelColor = '#b9c0c4',
   railArt = 'stahl',
   railId = '001',
+  railFrameColor,
   position = [0, 0, 0],
   rotation = [0, 0, 0],
 }: StaircaseProps) => {
@@ -124,7 +127,7 @@ export const Staircase = ({
           slope={-stringer.angle}
           art={railArt}
           id={railId}
-          frameColor={steelColor}
+          frameColor={railFrameColor ?? steelColor}
           color={stepColor}
           position={[(sx * (width + stringer.thickness)) / 2, totalRise / 2, run / 2]}
           rotation={[0, -Math.PI / 2, 0]}
