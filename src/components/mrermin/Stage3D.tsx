@@ -124,29 +124,40 @@ const Model = () => {
   const landingDepth = 0.9;
 
   const stairLayout = useMemo(() => {
+    type Rail = { pos: [number, number, number]; len: number; rot: number };
     const frontX = stairPosition === 'vorn-links'
       ? -d.breite / 2 + stairWidth / 2
       : d.breite / 2 - stairWidth / 2;
     if (stairPosition === 'vorn-links' || stairPosition === 'vorn-rechts') {
+      const lz = d.tiefe / 2 + landingDepth / 2;
       return {
         stair: [frontX, 0, d.tiefe / 2 + landingDepth] as [number, number, number],
         rotation: [0, 0, 0] as [number, number, number],
-        landing: [frontX, h, d.tiefe / 2 + landingDepth / 2] as [number, number, number],
+        landing: [frontX, h, lz] as [number, number, number],
         landingSize: [stairWidth, 0.16, landingDepth] as [number, number, number],
+        landingRails: [
+          { pos: [frontX - stairWidth / 2, h, lz], len: landingDepth, rot: Math.PI / 2 },
+          { pos: [frontX + stairWidth / 2, h, lz], len: landingDepth, rot: Math.PI / 2 },
+        ] as Rail[],
       };
     }
-    const sideX = stairPosition === 'seitlich-links'
-      ? -d.breite / 2 - stairWidth / 2
-      : d.breite / 2 + stairWidth / 2;
+    const dir = stairPosition === 'seitlich-links' ? -1 : 1;
+    const sideX = dir * (d.breite / 2 + stairWidth / 2);
+    const lz = -d.tiefe / 2 + landingDepth / 2;
     return {
-      // Seitliches Podest liegt neben dem Balkon an der Vorderkante,
-      // die Treppe läuft von dort nach vorn (von der Wand weg).
-      stair: [sideX, 0, d.tiefe / 2] as [number, number, number],
-      rotation: [0, 0, 0] as [number, number, number],
-      landing: [sideX, h, d.tiefe / 2 - landingDepth / 2] as [number, number, number],
+      // Podest sitzt hinten (wandseitig) neben dem Balkon,
+      // die Treppe läuft von dort parallel zur Wand seitlich nach außen.
+      stair: [dir * (d.breite / 2 + stairWidth), 0, lz] as [number, number, number],
+      rotation: [0, (dir * Math.PI) / 2, 0] as [number, number, number],
+      landing: [sideX, h, lz] as [number, number, number],
       landingSize: [stairWidth, 0.16, landingDepth] as [number, number, number],
+      landingRails: [
+        { pos: [sideX, h, -d.tiefe / 2 + landingDepth], len: stairWidth, rot: 0 },
+        { pos: [sideX, h, -d.tiefe / 2], len: stairWidth, rot: 0 },
+      ] as Rail[],
     };
   }, [stairPosition, d.breite, d.tiefe, h]);
+
 
   // Nahtlos kachelnde Belagstextur (RepeatWrapping), Kachelung folgt den Maßen
   const floorTexture = useMemo(() => {
