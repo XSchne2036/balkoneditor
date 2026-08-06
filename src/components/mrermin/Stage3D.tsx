@@ -65,78 +65,23 @@ const Railing = ({
 
   return (
     <group position={[0, y, 0]}>
-      {sides.map((s, i) => {
-        const posts = Math.max(2, Math.ceil(s.len / 1.5) + 1);
-        return (
-          <group key={i} position={[s.pos[0], 0, s.pos[2]]} rotation={[0, s.rot, 0]}>
-            {/* Handlauf */}
-            <mesh position={[0, h, 0]} castShadow>
-              <boxGeometry args={[s.len, 0.06, 0.06]} />
-              <meshStandardMaterial color={frameColor} metalness={0.7} roughness={0.35} />
-            </mesh>
-            {/* Pfosten */}
-            {Array.from({ length: posts }).map((_, p) => (
-              <mesh
-                key={p}
-                position={[-s.len / 2 + (s.len / (posts - 1)) * p, h / 2, 0]}
-                castShadow
-              >
-                <cylinderGeometry args={[0.04, 0.04, h, 12]} />
-                <meshStandardMaterial color={frameColor} metalness={0.7} roughness={0.35} />
-              </mesh>
-            ))}
-            {/* Füllung */}
-            {art === 'glas' && (
-              <mesh position={[0, h / 2, 0]} castShadow>
-                <boxGeometry args={[s.len - 0.08, h - 0.12, 0.012]} />
-                <meshPhysicalMaterial
-                  color={id === '005' ? '#e6eef0' : '#dbeaf0'}
-                  transparent
-                  opacity={id === '005' ? 0.7 : 0.55}
-                  roughness={id === '005' ? 0.35 : 0.05}
-                  metalness={0}
-                  transmission={0.9}
-                  ior={1.45}
-                  thickness={0.012}
-                  clearcoat={1}
-                  clearcoatRoughness={0.05}
-                  envMapIntensity={1.2}
-                />
-              </mesh>
-            )}
-            {art === 'alublech' && (
-              <mesh position={[0, h / 2, 0]}>
-                <boxGeometry args={[s.len - 0.08, h - 0.12, 0.012]} />
-                <meshStandardMaterial color={color} metalness={0.85} roughness={0.3} />
-              </mesh>
-            )}
-            {art === 'stahl' &&
-              (id === '002'
-                ? Array.from({ length: 4 }).map((_, b) => (
-                    <mesh key={b} position={[0, 0.22 + b * 0.28, 0]}>
-                      <boxGeometry args={[s.len - 0.08, 0.05, 0.012]} />
-                      <meshStandardMaterial color={frameColor} metalness={0.8} roughness={0.3} />
-                    </mesh>
-                  ))
-                : Array.from({ length: Math.max(2, Math.floor(s.len / 0.12)) }).map((_, b, arr) => (
-                    <mesh
-                      key={b}
-                      position={[-s.len / 2 + 0.06 + (b * (s.len - 0.12)) / (arr.length - 1), h / 2, 0]}
-                    >
-                      <cylinderGeometry args={[0.012, 0.012, h - 0.12, 8]} />
-                      <meshStandardMaterial
-                        color={id === '003' ? '#d3d8db' : frameColor}
-                        metalness={0.9}
-                        roughness={id === '003' ? 0.15 : 0.35}
-                      />
-                    </mesh>
-                  )))}
-          </group>
-        );
-      })}
+      {sides.map((s, i) => (
+        <RailSegment
+          key={i}
+          len={s.len}
+          art={art}
+          id={id}
+          frameColor={frameColor}
+          color={color}
+          height={h}
+          position={[s.pos[0], 0, s.pos[2]]}
+          rotation={[0, s.rot, 0]}
+        />
+      ))}
     </group>
   );
 };
+
 
 const Deck = ({
   width,
