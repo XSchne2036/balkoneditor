@@ -29,6 +29,7 @@ const Railing = ({
   art,
   id,
   stairPosition,
+  opening: openingProp = 1.1,
 }: {
   width: number;
   depth: number;
@@ -38,18 +39,18 @@ const Railing = ({
   art: 'stahl' | 'glas' | 'alublech';
   id: string;
   stairPosition?: 'vorn-links' | 'vorn-rechts' | 'seitlich-links' | 'seitlich-rechts';
+  opening?: number;
 }) => {
   const h = 1.1;
   const sides = useMemo(() => {
-    const opening = Math.min(1.1, width - 0.3, depth - 0.3);
+    const opening = Math.min(openingProp, width - 0.3, depth - 0.3);
     const segments: { pos: readonly [number, number, number]; len: number; rot: number }[] = [];
     const addFront = (from: number, to: number) => {
       if (to - from > 0.1) segments.push({ pos: [(from + to) / 2, 0, depth / 2], len: to - from, rot: 0 });
     };
     const addSide = (x: number, from: number, to: number) => {
       if (to - from > 0.1) {
-        // Lokale X-Achse zeigt bei +90° in Richtung -Z.
-        segments.push({ pos: [x, 0, -(from + to) / 2], len: to - from, rot: Math.PI / 2 });
+        segments.push({ pos: [x, 0, (from + to) / 2], len: to - from, rot: Math.PI / 2 });
       }
     };
 
@@ -57,13 +58,15 @@ const Railing = ({
     else if (stairPosition === 'vorn-rechts') addFront(-width / 2, width / 2 - opening);
     else addFront(-width / 2, width / 2);
 
+    // Bei seitlicher Treppe liegt das Podest hinten (wandseitig) -> Öffnung hinten.
     if (stairPosition === 'seitlich-links') addSide(-width / 2, -depth / 2 + opening, depth / 2);
     else addSide(-width / 2, -depth / 2, depth / 2);
 
     if (stairPosition === 'seitlich-rechts') addSide(width / 2, -depth / 2 + opening, depth / 2);
     else addSide(width / 2, -depth / 2, depth / 2);
     return segments;
-  }, [width, depth, stairPosition]);
+  }, [width, depth, stairPosition, openingProp]);
+
 
   return (
     <group position={[0, y, 0]}>
@@ -142,21 +145,21 @@ const Model = () => {
       };
     }
     const dir = stairPosition === 'seitlich-links' ? -1 : 1;
-    const sideX = dir * (d.breite / 2 + stairWidth / 2);
-    const lz = -d.tiefe / 2 + landingDepth / 2;
+    // Podest hinten (wandseitig) neben dem Balkon, genau so breit wie die Treppe.
+    const sideX = dir * (d.breite / 2 + landingDepth / 2);
+    const lz = -d.tiefe / 2 + stairWidth / 2;
     return {
-      // Podest sitzt hinten (wandseitig) neben dem Balkon,
-      // die Treppe läuft von dort parallel zur Wand seitlich nach außen.
-      stair: [dir * (d.breite / 2 + stairWidth), 0, lz] as [number, number, number],
+      stair: [dir * (d.breite / 2 + landingDepth), 0, lz] as [number, number, number],
       rotation: [0, (dir * Math.PI) / 2, 0] as [number, number, number],
       landing: [sideX, h, lz] as [number, number, number],
-      landingSize: [stairWidth, 0.16, landingDepth] as [number, number, number],
+      landingSize: [landingDepth, 0.16, stairWidth] as [number, number, number],
       landingRails: [
-        { pos: [sideX, h, -d.tiefe / 2 + landingDepth], len: stairWidth, rot: 0 },
-        { pos: [sideX, h, -d.tiefe / 2], len: stairWidth, rot: 0 },
+        { pos: [sideX, h, lz - stairWidth / 2], len: landingDepth, rot: 0 },
+        { pos: [sideX, h, lz + stairWidth / 2], len: landingDepth, rot: 0 },
       ] as Rail[],
     };
   }, [stairPosition, d.breite, d.tiefe, h]);
+
 
 
   // Nahtlos kachelnde Belagstextur (RepeatWrapping), Kachelung folgt den Maßen
@@ -185,6 +188,8 @@ const Model = () => {
         art={gel.art}
         id={gel.id}
         stairPosition={d.treppe === 'erweitert' ? stairPosition : undefined}
+        opening={stairWidth}
+
       />
 
       {d.etagen === 2 && (
