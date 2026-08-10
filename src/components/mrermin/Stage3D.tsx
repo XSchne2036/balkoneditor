@@ -145,21 +145,21 @@ const Model = () => {
       };
     }
     const dir = stairPosition === 'seitlich-links' ? -1 : 1;
-    const sideX = dir * (d.breite / 2 + stairWidth / 2);
-    const lz = -d.tiefe / 2 + landingDepth / 2;
+    // Podest hinten (wandseitig) neben dem Balkon, genau so breit wie die Treppe.
+    const sideX = dir * (d.breite / 2 + landingDepth / 2);
+    const lz = -d.tiefe / 2 + stairWidth / 2;
     return {
-      // Podest sitzt hinten (wandseitig) neben dem Balkon,
-      // die Treppe läuft von dort parallel zur Wand seitlich nach außen.
-      stair: [dir * (d.breite / 2 + stairWidth), 0, lz] as [number, number, number],
+      stair: [dir * (d.breite / 2 + landingDepth), 0, lz] as [number, number, number],
       rotation: [0, (dir * Math.PI) / 2, 0] as [number, number, number],
       landing: [sideX, h, lz] as [number, number, number],
-      landingSize: [stairWidth, 0.16, landingDepth] as [number, number, number],
+      landingSize: [landingDepth, 0.16, stairWidth] as [number, number, number],
       landingRails: [
-        { pos: [sideX, h, -d.tiefe / 2 + landingDepth], len: stairWidth, rot: 0 },
-        { pos: [sideX, h, -d.tiefe / 2], len: stairWidth, rot: 0 },
+        { pos: [sideX, h, lz - stairWidth / 2], len: landingDepth, rot: 0 },
+        { pos: [sideX, h, lz + stairWidth / 2], len: landingDepth, rot: 0 },
       ] as Rail[],
     };
   }, [stairPosition, d.breite, d.tiefe, h]);
+
 
 
   // Nahtlos kachelnde Belagstextur (RepeatWrapping), Kachelung folgt den Maßen
