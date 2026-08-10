@@ -188,6 +188,8 @@ const Model = () => {
         art={gel.art}
         id={gel.id}
         stairPosition={d.treppe === 'erweitert' ? stairPosition : undefined}
+        opening={stairWidth}
+
       />
 
       {d.etagen === 2 && (
