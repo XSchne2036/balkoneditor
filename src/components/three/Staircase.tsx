@@ -78,23 +78,26 @@ export const Staircase = ({
     [steps, riser, tread, stepThickness, totalRise]
   );
 
-  // Die lokale Treppe fällt in +z ab. Deshalb muss die Wange positiv um X
-  // gedreht werden: ihr +z-Ende liegt dadurch tiefer statt höher.
+  // Wange als Profil in der Seitenebene: Oberkante folgt exakt der Stufenvorderkanten-
+  // Linie (von der Podestkante bis zum Fuß), das untere Ende steht flach auf dem Boden.
   const stringer = useMemo(() => {
-    const angle = Math.atan2(totalRise, run);
-    const length = Math.hypot(totalRise, run) + tread;
-    const height = 0.24; // Wangenhöhe, überlappt die Stufenplatten
+    const height = 0.28; // vertikale Wangenhöhe
     const thickness = 0.05;
-    return {
-      angle,
-      length,
-      height,
-      thickness,
-      // Mittelpunkt der Wange
-      y: totalRise / 2 - height / 2 + stepThickness,
-      z: run / 2,
-    };
-  }, [totalRise, run, tread, stepThickness]);
+    const slopeZ = riser / tread; // Höhenverlust pro Meter Lauflänge
+    const footZ = run - height / slopeZ; // wo die Unterkante den Boden trifft
+    const shape = new THREE.Shape();
+    shape.moveTo(0, totalRise);
+    shape.lineTo(run, 0);
+    shape.lineTo(Math.max(0, footZ), 0);
+    shape.lineTo(0, totalRise - height);
+    shape.closePath();
+    const geo = new THREE.ExtrudeGeometry(shape, { depth: thickness, bevelEnabled: false });
+    geo.translate(0, 0, -thickness / 2);
+    geo.rotateY(-Math.PI / 2);
+    return { geo, thickness };
+  }, [totalRise, run, riser, tread]);
+
+  const angle = Math.atan2(totalRise, run);
 
   return (
     <group position={position} rotation={rotation}>
@@ -105,26 +108,25 @@ export const Staircase = ({
         </mesh>
       ))}
 
-      {/* Stahl-Wangen links/rechts — überlappen die Stufen */}
+      {/* Stahl-Wangen links/rechts — Oberkante bündig mit den Stufenkanten */}
       {[-1, 1].map((sx) => (
         <mesh
           key={`stringer-${sx}`}
-          position={[(sx * (width + stringer.thickness)) / 2, stringer.y, stringer.z]}
-          rotation={[stringer.angle, 0, 0]}
+          geometry={stringer.geo}
+          position={[(sx * (width + stringer.thickness)) / 2, 0, 0]}
           material={steelMat}
           castShadow
           receiveShadow
-        >
-          <boxGeometry args={[stringer.thickness, stringer.height, stringer.length]} />
-        </mesh>
+        />
       ))}
+
 
       {/* Geländer — identisch zum Balkongeländer, entlang der Treppensteigung */}
       {[-1, 1].map((sx) => (
         <RailSegment
           key={`rail-${sx}`}
           len={run}
-          slope={-stringer.angle}
+          slope={-angle}
           art={railArt}
           id={railId}
           frameColor={railFrameColor ?? steelColor}
