@@ -29,6 +29,7 @@ const Railing = ({
   art,
   id,
   stairPosition,
+  opening: openingProp = 1.1,
 }: {
   width: number;
   depth: number;
@@ -38,18 +39,18 @@ const Railing = ({
   art: 'stahl' | 'glas' | 'alublech';
   id: string;
   stairPosition?: 'vorn-links' | 'vorn-rechts' | 'seitlich-links' | 'seitlich-rechts';
+  opening?: number;
 }) => {
   const h = 1.1;
   const sides = useMemo(() => {
-    const opening = Math.min(1.1, width - 0.3, depth - 0.3);
+    const opening = Math.min(openingProp, width - 0.3, depth - 0.3);
     const segments: { pos: readonly [number, number, number]; len: number; rot: number }[] = [];
     const addFront = (from: number, to: number) => {
       if (to - from > 0.1) segments.push({ pos: [(from + to) / 2, 0, depth / 2], len: to - from, rot: 0 });
     };
     const addSide = (x: number, from: number, to: number) => {
       if (to - from > 0.1) {
-        // Lokale X-Achse zeigt bei +90° in Richtung -Z.
-        segments.push({ pos: [x, 0, -(from + to) / 2], len: to - from, rot: Math.PI / 2 });
+        segments.push({ pos: [x, 0, (from + to) / 2], len: to - from, rot: Math.PI / 2 });
       }
     };
 
@@ -57,13 +58,15 @@ const Railing = ({
     else if (stairPosition === 'vorn-rechts') addFront(-width / 2, width / 2 - opening);
     else addFront(-width / 2, width / 2);
 
+    // Bei seitlicher Treppe liegt das Podest hinten (wandseitig) -> Öffnung hinten.
     if (stairPosition === 'seitlich-links') addSide(-width / 2, -depth / 2 + opening, depth / 2);
     else addSide(-width / 2, -depth / 2, depth / 2);
 
     if (stairPosition === 'seitlich-rechts') addSide(width / 2, -depth / 2 + opening, depth / 2);
     else addSide(width / 2, -depth / 2, depth / 2);
     return segments;
-  }, [width, depth, stairPosition]);
+  }, [width, depth, stairPosition, openingProp]);
+
 
   return (
     <group position={[0, y, 0]}>
