@@ -126,7 +126,7 @@ export const Staircase = ({
         <RailSegment
           key={`rail-${sx}`}
           len={run}
-          slope={-stringer.angle}
+          slope={-angle}
           art={railArt}
           id={railId}
           frameColor={railFrameColor ?? steelColor}
