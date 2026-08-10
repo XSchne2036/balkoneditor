@@ -40,6 +40,26 @@ export const RailSegment = ({
   const posts = Math.max(2, Math.ceil(len / 1.5) + 1);
   const barCount = Math.max(2, Math.floor(len / 0.12));
 
+  /**
+   * Füllfläche als Parallelogramm: die Stirnseiten bleiben senkrecht, dadurch
+   * entstehen an Anfang/Ende der Treppe keine überstehenden Dreiecke.
+   * yFrom/yTop sind relativ zur (geneigten) Basislinie gemessen.
+   */
+  const panelGeo = (yFrom: number, yTo: number) => {
+    const x0 = -len / 2 + 0.04;
+    const x1 = len / 2 - 0.04;
+    const shape = new THREE.Shape();
+    shape.moveTo(x0, baseY(x0) + yFrom);
+    shape.lineTo(x1, baseY(x1) + yFrom);
+    shape.lineTo(x1, baseY(x1) + yTo);
+    shape.lineTo(x0, baseY(x0) + yTo);
+    shape.closePath();
+    const geo = new THREE.ExtrudeGeometry(shape, { depth: 0.012, bevelEnabled: false });
+    geo.translate(0, 0, -0.006);
+    return geo;
+  };
+
+
   return (
     <group position={position} rotation={rotation}>
       {/* Handlauf */}
