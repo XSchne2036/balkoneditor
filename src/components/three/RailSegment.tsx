@@ -59,10 +59,9 @@ export const RailSegment = ({
         );
       })}
 
-      {/* Füllung */}
+      {/* Füllung — Parallelogramm mit senkrechten Stirnseiten (keine Dreiecke an den Enden) */}
       {art === 'glas' && (
-        <mesh position={[0, h / 2, 0]} rotation={[0, 0, slope]} castShadow>
-          <boxGeometry args={[railLen - 0.08, h - 0.12, 0.012]} />
+        <mesh geometry={panelGeo(0.06, h - 0.06)} castShadow>
           <meshPhysicalMaterial
             color={id === '005' ? '#e6eef0' : '#dbeaf0'}
             transparent
@@ -81,18 +80,16 @@ export const RailSegment = ({
       )}
 
       {art === 'alublech' && (
-        <mesh position={[0, h / 2, 0]} rotation={[0, 0, slope]}>
-          <boxGeometry args={[railLen - 0.08, h - 0.12, 0.012]} />
-          <meshStandardMaterial color={color} metalness={0.85} roughness={0.3} />
+        <mesh geometry={panelGeo(0.06, h - 0.06)}>
+          <meshStandardMaterial color={color} metalness={0.85} roughness={0.3} side={THREE.DoubleSide} />
         </mesh>
       )}
 
       {art === 'stahl' &&
         (id === '002'
           ? Array.from({ length: 4 }).map((_, b) => (
-              <mesh key={b} position={[0, 0.22 + b * 0.28, 0]} rotation={[0, 0, slope]}>
-                <boxGeometry args={[railLen - 0.08, 0.05, 0.012]} />
-                <meshStandardMaterial color={frameColor} metalness={0.8} roughness={0.3} />
+              <mesh key={b} geometry={panelGeo(0.22 + b * 0.28 - 0.025, 0.22 + b * 0.28 + 0.025)}>
+                <meshStandardMaterial color={frameColor} metalness={0.8} roughness={0.3} side={THREE.DoubleSide} />
               </mesh>
             ))
           : Array.from({ length: barCount }).map((_, b, arr) => {
